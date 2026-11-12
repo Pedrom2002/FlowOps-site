@@ -1,0 +1,24 @@
+# Mantém este fork igual ao repositório original (Lourencocouto1/FlowOps-site).
+# Cada sincronização com novidades faz push para main, e a Vercel faz o deploy.
+name: Sincronizar com o original
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trazer alterações do original para main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh repo sync "$GITHUB_REPOSITORY" --source Lourencocouto1/FlowOps-site --branch main
