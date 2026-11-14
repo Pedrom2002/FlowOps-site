@@ -238,6 +238,29 @@
   @keyframes hp-log-in { from { opacity: 0; transform: translateY(-4px); } }
   .hp-toast { position: absolute; z-index: 3; left: 12px; right: 12px; top: 40px; padding: 9px 12px; border-radius: 12px; background: var(--color-ink); color: #fff; font-weight: 600; text-align: center; box-shadow: 0 10px 24px -12px rgb(0 0 0 / .5); opacity: 0; transform: translateY(-8px); pointer-events: none; transition: opacity .25s ease, transform .3s ease; }
   .hp-toast.is-on { opacity: 1; transform: none; }
+  /* Páginas dos separadores: display: contents mantém o layout da cena (flex em coluna, tab bar em baixo). */
+  .hp-view { display: contents; }
+  .hp-view.is-in > * { animation: hp-log-in .3s ease both; }
+  .hp-stats.two { grid-template-columns: repeat(2, 1fr); }
+  .hp-chat { display: flex; flex-direction: column; gap: 6px; }
+  .hp-day { align-self: center; margin-top: 2px; color: #6b7b77; font-weight: 600; }
+  .hp-msg { max-width: 82%; padding: 7px 10px; border-radius: 14px 14px 14px 4px; background: #fff; }
+  .hp-msg.out { align-self: flex-end; border-radius: 14px 14px 4px 14px; background: var(--color-brand); color: #fff; }
+  .hp-msg.is-new { animation: hp-log-in .3s ease both; }
+  .hp-compose { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 12px; border-radius: 99px; background: #fff; color: #6b7b77; }
+  .hp-compose span { flex: 1; }
+  .hp-compose svg { width: 16px; height: 16px; color: var(--color-brand); }
+  .hp-compose.is-done { cursor: default; }
+  .hp-chips { display: flex; gap: 3px; font-weight: 600; white-space: nowrap; }
+  .hp-chips span { flex: 1 1 auto; padding: 5px 6px; border-radius: 99px; background: #fff; text-align: center; }
+  .hp-chips .on { background: var(--color-ink); color: #fff; }
+  .hp-row.first { border-top: 0; }
+  .hp-row.unread { position: relative; }
+  .hp-row.unread::before { content: ""; position: absolute; left: 3px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: var(--color-brand); }
+  .hp-nb { white-space: nowrap; }
+  .hp-row.unread span { font-weight: 700; }
+  .hp-alert b { color: #b42318; }
+  .hp-row em.hp-fix { padding: 4px 9px; border-radius: 99px; background: var(--color-brand); color: #fff; font-weight: 700; }
   .hero-hint { max-width: 30ch; text-align: center; font-size: 0.8rem; color: var(--color-on-dark); }
 
   /* --- serviços --- */
@@ -286,7 +309,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .sv-inner, .cs-device, .cs-scroll, .cs-toast, .cs-pick, .cs-pick-btn, .lift, .hp-toast, .hero-phone [data-hp] { transition: none; }
-    .hp-row.log.is-new { animation: none; }
+    .hp-row.log.is-new, .hp-view.is-in > *, .hp-msg.is-new { animation: none; }
     .case-card .cs-device, .case-card .cs-scroll, .lift:hover, .lift:active, .sv-card .sv-inner { transform: none !important; }
   }
 }

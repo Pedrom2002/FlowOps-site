@@ -168,6 +168,21 @@ function initPhone(stage: HTMLElement, scenes: HTMLElement[]) {
   ];
   const euros = (n: number) => `${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} €`; // 3 180 €
 
+  // Separadores: cada um mostra a página com o mesmo índice (.hp-view) e fica destacado.
+  const openView = (scene: HTMLElement, i: number) => {
+    const views = [...scene.querySelectorAll<HTMLElement>('.hp-view')];
+    const view = views[i];
+    if (!view || !view.hidden) return;
+    views.forEach((v, n) => {
+      v.hidden = n !== i;
+      v.classList.remove('is-in');
+    });
+    toastEl?.classList.remove('is-on');
+    void view.offsetWidth; // recomeça a animação de entrada
+    view.classList.add('is-in');
+    scene.querySelectorAll('.hp-tabs [data-hp="tab"]').forEach((t, n) => t.classList.toggle('on', n === i));
+  };
+
   // Marcações: o botão e a etiqueta acompanham o dia e a hora escolhidos.
   const updateBooking = (scene: HTMLElement) => {
     const day = scene.querySelector<HTMLElement>('[data-hp="day"].on');
@@ -215,9 +230,53 @@ function initPhone(stage: HTMLElement, scenes: HTMLElement[]) {
       const time = scene.querySelector('[data-hp="time"].on')?.textContent;
       el.classList.add('is-done');
       el.textContent = 'Sessão marcada';
+      // A próxima sessão no separador Início passa a ser a que acabou de marcar.
+      const next = scene.querySelector('[data-hp-next]');
+      const nb = next?.querySelector('b');
+      const ns = next?.querySelector('small');
+      if (nb) nb.textContent = `${weekdays[Number(day?.dataset.wd)]}-feira, ${day?.textContent} nov`;
+      if (ns) ns.textContent = `${time}, fisioterapia, 50 min`;
       toast(`Marcado: ${weekdays[Number(day?.dataset.wd)]!.toLowerCase()}, dia ${day?.textContent}, às ${time}.`);
     },
-    tab: (el) => pick(el, 'span'),
+    tab: (el, scene) => openView(scene, [...(el.parentElement?.children ?? [])].indexOf(el)),
+    goto: (el, scene) => openView(scene, Number(el.dataset.to)),
+    send: (el, scene) => {
+      const chat = scene.querySelector('[data-hp-chat]');
+      if (!chat || el.classList.contains('is-done')) return;
+      el.classList.add('is-done');
+      const say = (text: string, out: boolean) => {
+        const m = document.createElement('p');
+        m.className = `hp-msg is-new${out ? ' out' : ''}`;
+        m.textContent = text;
+        chat.append(m);
+      };
+      say('Combinado, até amanhã.', true);
+      window.setTimeout(() => say('Até amanhã. Bom resto de dia.', false), 900);
+    },
+    filter: (el, scene) => {
+      pick(el, '[data-hp="filter"]');
+      const f = el.dataset.f;
+      const rows = [...scene.querySelectorAll<HTMLElement>('[data-hp-cars] .hp-row')];
+      rows.forEach((r) => (r.hidden = !!f && r.dataset.st !== f));
+      const shown = rows.filter((r) => !r.hidden);
+      rows.forEach((r) => r.classList.toggle('first', r === shown[0]));
+      const count = scene.querySelector('[data-hp-count]');
+      if (count) count.textContent = f ? `${shown.length} de ${rows.length} viaturas` : `${rows.length} viaturas na oficina hoje`;
+    },
+    read: (el) => el.classList.remove('unread'),
+    fix: (el) => {
+      const row = el.closest('.hp-row');
+      if (!row) return;
+      row.classList.remove('hp-alert');
+      const b = row.querySelector('b');
+      const small = row.querySelector('small');
+      if (b) b.textContent = 'SMS reenviado';
+      if (small) small.innerHTML = 'Número corrigido na ficha da <span class="hp-nb">09-ZH-44</span>.';
+      el.removeAttribute('data-hp');
+      el.className = 'ok';
+      el.textContent = 'Resolvido';
+      toast('SMS reenviado ao cliente.');
+    },
     bars: (el, scene, e) => {
       const bars = [...el.querySelectorAll<HTMLElement>('i')];
       const values = (el.dataset.values ?? '').split(',').map(Number);

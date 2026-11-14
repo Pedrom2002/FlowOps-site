@@ -4,6 +4,8 @@
 // nem pessoas inventadas: cada exemplo é identificado pelo tipo de negócio. Estilos: hp-* em mockups.css.
 // Os elementos com data-hp respondem ao toque e ao rato (ver initPhone em scripts/motion.ts). São um extra:
 // o ecrã fica fora da árvore de acessibilidade e o teclado usa os controlos por baixo do telemóvel.
+// Nos exemplos com barra de separadores, cada separador tem a sua página (.hp-view, pela mesma ordem).
+// Interruptores com .still não têm a animação de entrada (só os da página inicial de cada exemplo a têm).
 import HeroF from './HeroF.astro';
 import BrandF from '../ui/BrandF.astro';
 
@@ -26,6 +28,7 @@ const I: Record<string, string> = {
   lock: '<rect x="6" y="11" width="12" height="9" rx="2"/><path d="M9 11V8a3 3 0 0 1 6 0v3"/>',
   menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
   chev: '<path d="M10 6l6 6-6 6"/>',
+  send: '<path d="M4 12l16-8-6 16-3-7z"/><path d="M11 13l9-9"/>',
 };
 const tabs: Record<string, [string, string][]> = {
   booking: [['home', 'Início'], ['cal', 'Marcações'], ['chat', 'Mensagens'], ['user', 'Conta']],
@@ -37,6 +40,16 @@ const active: Record<string, number> = { booking: 1, dashboard: 0, automation: 0
 // Calendário: novembro de 2026, segunda e terça semanas (hoje é dia 11).
 const weeks = [[2, 3, 4, 5, 6, 7, 8], [9, 10, 11, 12, 13, 14, 15]];
 const bars = [38, 52, 30, 0, 0, 0, 0]; // faturação por dia, seg a dom (só até hoje)
+// Lista completa de viaturas (separador Viaturas da oficina).
+const status: Record<string, string> = { run: 'Em curso', ok: 'Pronta', wait: 'Peças' };
+const cars: [string, string, string][] = [
+  ['45-QX-12', 'Revisão dos 60 000 km', 'ok'],
+  ['AV-08-LM', 'Travões', 'run'],
+  ['12-RT-90', 'Embraiagem', 'wait'],
+  ['33-LB-07', 'Mudança de óleo', 'run'],
+  ['BX-51-PD', 'Pneus', 'ok'],
+  ['09-ZH-44', 'Diagnóstico', 'run'],
+];
 const revenue = [1050, 1440, 690, 0, 0, 0, 0]; // em euros, soma 3 180 € (mostrado ao tocar numa barra)
 ---
 <div class="hero-stage">
@@ -72,6 +85,23 @@ const revenue = [1050, 1440, 690, 0, 0, 0, 0]; // em euros, soma 3 180 € (most
 
       <!-- 2. Marcações -->
       <div class="mk-scene hp-scene" data-scene="booking">
+        <div class="hp-view" hidden>
+          <p class="hp-title">Início</p>
+          <p class="hp-label">Próxima sessão</p>
+          <div class="hp-group">
+            <div class="hp-row two" data-hp-next><span><b>Quinta-feira, 12 nov</b><small>14:00, fisioterapia, 50 min</small></span><em class="ok">Confirmada</em></div>
+          </div>
+          <p class="hp-label">Serviços</p>
+          <div class="hp-group">
+            <div class="hp-row"><span>Fisioterapia, 50 min</span><em>35 €</em></div>
+            <div class="hp-row"><span>Massagem desportiva, 40 min</span><em>30 €</em></div>
+            <div class="hp-row"><span>Pilates clínico, 50 min</span><em>25 €</em></div>
+            <div class="hp-row"><span>Avaliação inicial, 30 min</span><em>20 €</em></div>
+          </div>
+          <span class="hp-btn" data-hp="goto" data-to="1">Marcar nova sessão</span>
+          <p class="hp-note">Rua com estacionamento. Seg. a sáb., 8h às 20h.</p>
+        </div>
+        <div class="hp-view">
         <p class="hp-title">Marcar sessão</p>
         <div class="hp-group">
           <div class="hp-row"><span>Fisioterapia, 50 min</span><em>35 €</em></div>
@@ -90,11 +120,43 @@ const revenue = [1050, 1440, 690, 0, 0, 0, 0]; // em euros, soma 3 180 € (most
         <div class="hp-times"><span data-hp="time">09:00</span><span data-hp="time">10:30</span><span class="on" data-hp="time">14:00</span><span data-hp="time">16:30</span></div>
         <span class="hp-btn" data-hp="book">Confirmar quinta às 14:00</span>
         <p class="hp-note">Recebe um lembrete por SMS na véspera. Pode remarcar até 24 horas antes.</p>
+        </div>
+        <div class="hp-view" hidden>
+          <p class="hp-title">Mensagens</p>
+          <div class="hp-chat" data-hp-chat>
+            <small class="hp-day">Ontem</small>
+            <p class="hp-msg">A sua sessão de quinta, dia 12, às 14:00 está confirmada.</p>
+            <p class="hp-msg out">Posso levar os exames que fiz?</p>
+            <p class="hp-msg">Sim, traga-os por favor. Ajudam a preparar a sessão.</p>
+            <small class="hp-day">Hoje</small>
+            <p class="hp-msg">Lembrete: amanhã às 14:00. Para remarcar, responda a esta mensagem.</p>
+          </div>
+          <div class="hp-compose" data-hp="send"><span>Escrever mensagem</span><svg viewBox="0 0 24 24" set:html={I.send} /></div>
+        </div>
+        <div class="hp-view" hidden>
+          <p class="hp-title">Conta</p>
+          <div class="hp-stats two">
+            <div><b>4</b><span>sessões feitas</span></div>
+            <div><b>1</b><span>marcada</span></div>
+          </div>
+          <p class="hp-label">Notificações</p>
+          <div class="hp-group">
+            <div class="hp-row toggle" data-hp="switch" data-name="Lembrete por SMS"><span>Lembrete por SMS na véspera</span><i class="hp-switch on still"></i></div>
+            <div class="hp-row toggle" data-hp="switch" data-name="Novidades por email"><span>Novidades da clínica por email</span><i class="hp-switch still"></i></div>
+          </div>
+          <p class="hp-label">Faturas</p>
+          <div class="hp-group">
+            <div class="hp-row two"><span><b>FT 2026/312</b><small>4 nov, fisioterapia</small></span><em>35 €</em></div>
+            <div class="hp-row two"><span><b>FT 2026/298</b><small>28 out, fisioterapia</small></span><em>35 €</em></div>
+            <div class="hp-row two"><span><b>FT 2026/271</b><small>21 out, avaliação inicial</small></span><em>20 €</em></div>
+          </div>
+        </div>
         <nav class="hp-tabs">{tabs.booking.map(([k, l], n) => <span class:list={[n === active.booking && 'on']} data-hp="tab"><svg viewBox="0 0 24 24" set:html={I[k]} />{l}</span>)}</nav>
       </div>
 
       <!-- 3. Gestão -->
       <div class="mk-scene hp-scene" data-scene="dashboard">
+        <div class="hp-view">
         <div class="hp-title-row"><p class="hp-title">Oficina</p><small>quarta, 11 nov</small></div>
         <div class="hp-stats">
           <div><b data-stat="run">7</b><span>em curso</span></div>
@@ -112,11 +174,55 @@ const revenue = [1050, 1440, 690, 0, 0, 0, 0]; // em euros, soma 3 180 € (most
           <div class="hp-row two" data-hp="car"><span><b>AV-08-LM</b><small>Travões</small></span><em>Em curso</em></div>
           <div class="hp-row two" data-hp="car"><span><b>12-RT-90</b><small>Embraiagem</small></span><em class="wait">Peças</em></div>
         </div>
+        </div>
+        <div class="hp-view" hidden>
+          <p class="hp-title">Viaturas</p>
+          <div class="hp-chips">
+            <span class="on" data-hp="filter" data-f="">Todas</span><span data-hp="filter" data-f="run">Em curso</span><span data-hp="filter" data-f="ok">Prontas</span><span data-hp="filter" data-f="wait">Peças</span>
+          </div>
+          <div class="hp-group" data-hp-cars>
+            {cars.map(([plate, job, st]) => (
+              <div class="hp-row two" data-st={st}><span><b>{plate}</b><small>{job}</small></span><em class:list={[st === 'ok' && 'ok', st === 'wait' && 'wait']}>{status[st]}</em></div>
+            ))}
+          </div>
+          <p class="hp-note" data-hp-count>{cars.length} viaturas na oficina hoje</p>
+        </div>
+        <div class="hp-view" hidden>
+          <p class="hp-title">Avisos</p>
+          <p class="hp-label">Hoje</p>
+          <div class="hp-group">
+            <div class="hp-row log unread" data-hp="read"><time>10:05</time><span>Peças da 12-RT-90 chegam amanhã de manhã</span></div>
+            <div class="hp-row log unread" data-hp="read"><time>09:12</time><span>45-QX-12 pronta: cliente avisado por SMS</span></div>
+            <div class="hp-row log" data-hp="read"><time>08:47</time><span>Orçamento da AV-08-LM aprovado pelo cliente</span></div>
+          </div>
+          <p class="hp-label">Esta semana</p>
+          <div class="hp-group">
+            <div class="hp-row log" data-hp="read"><time>seg.</time><span>3 revisões a lembrar este mês</span></div>
+            <div class="hp-row log" data-hp="read"><time>seg.</time><span>Stock baixo: restam 4 filtros de óleo</span></div>
+          </div>
+          <p class="hp-note">Toque num aviso para o marcar como lido.</p>
+        </div>
+        <div class="hp-view" hidden>
+          <p class="hp-title">Ajustes</p>
+          <p class="hp-label">Oficina</p>
+          <div class="hp-group">
+            <div class="hp-row"><span>Seg. a sex.</span><em>8h30 às 18h</em></div>
+            <div class="hp-row"><span>Sábado</span><em>9h às 13h</em></div>
+            <div class="hp-row" data-hp="cycle" data-options="3|4|2"><span>Mecânicos</span><em>3</em><svg viewBox="0 0 24 24" set:html={I.chev} /></div>
+          </div>
+          <p class="hp-label">Preferências</p>
+          <div class="hp-group">
+            <div class="hp-row toggle" data-hp="switch" data-name="Aprovação por SMS"><span>Pedir aprovação do orçamento por SMS</span><i class="hp-switch on still"></i></div>
+            <div class="hp-row toggle" data-hp="switch" data-name="Faturação no resumo"><span>Mostrar a faturação no resumo</span><i class="hp-switch on still"></i></div>
+            <div class="hp-row toggle" data-hp="switch" data-name="Alertas de stock"><span>Alertas de stock baixo</span><i class="hp-switch on still"></i></div>
+          </div>
+        </div>
         <nav class="hp-tabs">{tabs.dashboard.map(([k, l], n) => <span class:list={[n === active.dashboard && 'on']} data-hp="tab"><svg viewBox="0 0 24 24" set:html={I[k]} />{l}</span>)}</nav>
       </div>
 
       <!-- 4. Automatizações -->
       <div class="mk-scene hp-scene" data-scene="automation">
+        <div class="hp-view">
         <p class="hp-title">Automações</p>
         <div class="hp-group">
           <div class="hp-row toggle" data-hp="switch" data-name="Aviso por SMS"><span>Avisar o cliente por SMS quando o carro fica pronto</span><i class="hp-switch on"></i></div>
@@ -129,6 +235,43 @@ const revenue = [1050, 1440, 690, 0, 0, 0, 0]; // em euros, soma 3 180 € (most
           <div class="hp-row log"><time>09:12</time><span>SMS enviado: 45-QX-12 pronto</span></div>
           <div class="hp-row log"><time>09:12</time><span>Fatura FT 2026/184 enviada</span></div>
           <div class="hp-row log"><time>08:30</time><span>6 lembretes de revisão enviados</span></div>
+        </div>
+        </div>
+        <div class="hp-view" hidden>
+          <p class="hp-title">Histórico</p>
+          <p class="hp-label">Ontem</p>
+          <div class="hp-group">
+            <div class="hp-row log"><time>17:40</time><span>SMS enviado: 33-LB-07 pronto</span></div>
+            <div class="hp-row log"><time>17:40</time><span>Fatura FT 2026/183 enviada</span></div>
+            <div class="hp-row log"><time>11:15</time><span>SMS enviado: BX-51-PD pronto</span></div>
+          </div>
+          <p class="hp-label">Segunda, 9 nov</p>
+          <div class="hp-group">
+            <div class="hp-row log"><time>16:20</time><span>Fatura FT 2026/181 enviada</span></div>
+            <div class="hp-row log"><time>08:30</time><span>4 lembretes de revisão enviados</span></div>
+          </div>
+          <p class="hp-note">42 envios nos últimos 30 dias, sem trabalho manual.</p>
+        </div>
+        <div class="hp-view" hidden>
+          <p class="hp-title">Avisos</p>
+          <div class="hp-group">
+            <div class="hp-row two hp-alert"><span><b>SMS não enviado</b><small>Número inválido na ficha da <span class="hp-nb">09-ZH-44</span>.</small></span><em class="hp-fix" data-hp="fix">Corrigir</em></div>
+            <div class="hp-row two"><span><b>Email devolvido</b><small>Fatura FT 2026/179 reenviada para o endereço alternativo.</small></span><em class="ok">Resolvido</em></div>
+          </div>
+          <p class="hp-note">Quando um envio falha, fica registado aqui e a gerência recebe um email.</p>
+        </div>
+        <div class="hp-view" hidden>
+          <p class="hp-title">Ajustes</p>
+          <p class="hp-label">Envios</p>
+          <div class="hp-group">
+            <div class="hp-row"><span>Remetente dos SMS</span><em>Oficina</em></div>
+            <div class="hp-row" data-hp="cycle" data-options="sex., 18h|seg., 8h"><span>Resumo semanal</span><em>sex., 18h</em><svg viewBox="0 0 24 24" set:html={I.chev} /></div>
+            <div class="hp-row" data-hp="cycle" data-options="12 meses|6 meses|18 meses"><span>Lembrete de revisão</span><em>12 meses</em><svg viewBox="0 0 24 24" set:html={I.chev} /></div>
+          </div>
+          <p class="hp-label">Horário</p>
+          <div class="hp-group">
+            <div class="hp-row toggle" data-hp="switch" data-name="Horário de envio"><span>Não enviar SMS entre as 21h e as 9h</span><i class="hp-switch on still"></i></div>
+          </div>
         </div>
         <nav class="hp-tabs">{tabs.automation.map(([k, l], n) => <span class:list={[n === active.automation && 'on']} data-hp="tab"><svg viewBox="0 0 24 24" set:html={I[k]} />{l}</span>)}</nav>
       </div>
