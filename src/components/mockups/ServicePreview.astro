@@ -3,18 +3,12 @@
 // Com movimento, cada uma faz a sua ação quando o cartão fica .is-playing (ver motion.css e initServices):
 // --i escalona barras, notificações e vistos.
 import Icon from '../ui/Icon.astro';
-// O website e as apps têm a sua própria pré-visualização em vídeo (WebsiteFilm.astro, AppFilm.astro).
-interface Props { kind: 'dashboard' | 'automation' | 'integration' | 'support' }
+// Website, apps e gestão têm a sua própria pré-visualização em vídeo (WebsiteFilm, AppFilm, ManagementFilm).
+interface Props { kind: 'automation' | 'integration' | 'support' }
 const { kind } = Astro.props;
 ---
 <div class="sv-mini" aria-hidden="true">
   <div class="sv-inner">
-    {kind === 'dashboard' && (
-      <div>
-        <div class="mk-tiles"><div><b>7</b><span>Reparações em curso</span></div><div><b>3</b><span>Prontas a entregar</span></div></div>
-        <div class="mk-bars boxed">{[40, 65, 50, 80, 55, 70, 90].map((h, i) => <i style={`height:${h}%;--i:${i}`}></i>)}</div>
-      </div>
-    )}
     {kind === 'automation' && (
       <div class="mk-notes">
         <div class="mk-note" style="--i:0"><b>Lembrete enviado</b><span>Sessão amanhã às 14:00</span><span class="mk-ok sm"><Icon name="ok" class="size-3" strokeWidth={3} /></span></div>

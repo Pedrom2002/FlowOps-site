@@ -3,6 +3,7 @@ import SectionHead from '../ui/SectionHead.astro';
 import ServicePreview from '../mockups/ServicePreview.astro';
 import WebsiteFilm from '../mockups/WebsiteFilm.astro';
 import AppFilm from '../mockups/AppFilm.astro';
+import ManagementFilm from '../mockups/ManagementFilm.astro';
 import WhatsAppIcon from '../ui/WhatsAppIcon.astro';
 import { getSection, getOrdered, getSettings, whatsappHref, isExternal } from '../../lib/site';
 
@@ -30,7 +31,7 @@ const contact = (about: string) => whatsappHref(s.contacts.whatsapp, `Olá! Vi o
         const href = contact(data.about);
         return (
           <div class="sv-card sv-panel" role="tabpanel" id={`sv-panel-${id}`} aria-labelledby={`sv-tab-${id}`} tabindex="0" hidden={n !== 0} data-sv-panel>
-            <div class="sv-stage">{data.preview === 'website' ? <WebsiteFilm /> : data.preview === 'app' ? <AppFilm /> : <ServicePreview kind={data.preview} />}</div>
+            <div class="sv-stage">{data.preview === 'website' ? <WebsiteFilm /> : data.preview === 'app' ? <AppFilm /> : data.preview === 'dashboard' ? <ManagementFilm /> : <ServicePreview kind={data.preview} />}</div>
             <div class="sv-body">
               <h3 class="sv-title">{data.title}</h3>
               <p class="text-muted">{data.text}</p>

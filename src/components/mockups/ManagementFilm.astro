@@ -1,0 +1,100 @@
+---
+import FilmControls from './FilmControls.astro';
+// "Vídeo" do painel Sistemas de gestão: a Oficina Nortecar (fictícia) passa de papéis, post-its, Excel e mensagens
+// a um painel de reparações, em 5 etapas numa janela de computador. Estado: data-step e classes cumulativas
+// at-1..at-4 no .mf (como nos outros vídeos); avanço e controlos em initFilms (scripts/motion.ts).
+// Estilos: management-film.css. O estado base é o da etapa final; sem movimento, as etapas mudam sem animação.
+// Sem números de resultados (horas poupadas, percentagens): seriam estatísticas inventadas.
+const chapters = [
+  { label: 'Antes', caption: 'Hoje: fichas em papel, post-its, uma folha de Excel e clientes a perguntar por mensagem.' },
+  { label: 'Como é hoje', caption: 'Vemos como o trabalho circula e onde se perde informação.' },
+  { label: 'Por partes', caption: 'Construímos por partes, a começar pelo que mais tempo poupa.' },
+  { label: 'Dados', caption: 'Os dados que já existem passam para o sistema, sem os escrever de novo.' },
+  { label: 'Em uso', caption: 'A equipa trabalha num só sítio e o cliente é avisado quando o carro fica pronto.' },
+];
+const last = chapters.length - 1;
+// Peças da secretária: posição desarrumada (b: x, y, largura %, rotação) e no fluxo (o: ordem 0 a 3).
+const flow = ['Receção', 'Orçamento', 'Reparação', 'Entrega'];
+const pains: [number, string][] = [[0, 'Escrito à mão'], [1, 'Copiado para o Excel'], [3, 'Cliente sem aviso']];
+const modules = ['Reparações', 'Clientes', 'Stock', 'Faturação'];
+const rows: [string, string, string, string][] = [
+  ['45-QX-12', 'Revisão', 'Pronta', 'ok'],
+  ['AV-08-LM', 'Travões', 'Em curso', 'run'],
+  ['12-RT-90', 'Embraiagem', 'Peças', 'wait'],
+  ['33-LB-07', 'Mudança de óleo', 'Em curso', 'run'],
+  ['BX-51-PD', 'Pneus', 'Pronta', 'ok'],
+];
+const piece = (x: number, y: number, w: number, r: number, o: number, i: number) => `--bx:${x}%;--by:${y}%;--bw:${w}%;--br:${r}deg;--o:${o};--i:${i}`;
+---
+<div class="film mf at-1 at-2 at-3 at-4" data-film data-step={last} data-durations="3000,3400,3300,3400,4400">
+  <div class="mf-window" aria-hidden="true">
+    <div class="mf-titlebar"><span class="mf-dots"><i></i><i></i><i></i></span><span class="mf-wtitle">Oficina Nortecar</span></div>
+    <div class="mf-body">
+      <!-- 1 e 2. A secretária desarrumada, que depois se arruma no fluxo de hoje. -->
+      <div class="mf-desk">
+        <p class="mf-flow-title">Como o trabalho circula hoje</p>
+        <div class="mf-piece mf-paper" style={piece(5, 9, 30, -6, 0, 0)}>
+          <span class="b"><b>Ficha 0412</b><span class="mf-hand">Golf cinzento, travões. Ligar 5.ª</span><i class="mf-lines"></i></span>
+          <span class="a">{flow[0]}</span>
+        </div>
+        <div class="mf-piece mf-sheet" style={piece(31, 33, 44, 3, 1, 1)}>
+          <span class="b"><span class="mf-xls-head">reparacoes_v4_FINAL.xlsx</span><span class="mf-grid">{Array.from({ length: 15 }, (_, n) => <i class:list={[(n === 4 || n === 10) && 'red', n === 7 && 'yel']}></i>)}</span></span>
+          <span class="a">{flow[1]}</span>
+        </div>
+        <div class="mf-piece mf-postit" style={piece(64, 7, 25, 7, 2, 2)}>
+          <span class="b"><span class="mf-hand">Ligar ao cliente do Golf!</span></span>
+          <span class="a">{flow[2]}</span>
+        </div>
+        <div class="mf-piece mf-bubble" style={piece(7, 62, 34, -3, 3, 3)}>
+          <span class="b"><small>Mensagem</small>O meu carro já está pronto?</span>
+          <span class="a">{flow[3]}</span>
+        </div>
+        {[0, 1, 2].map((n) => <svg class="mf-arrow" style={`--n:${n}`} viewBox="0 0 24 12"><path d="M1 6h20M16 1l5 5-5 5" /></svg>)}
+        {pains.map(([o, t], n) => <span class="mf-pain" style={`--o:${o}; --i:${n}`}>{t}</span>)}
+      </div>
+
+      <!-- 3 a 5. O sistema: barra lateral por módulos, tabela (dados importados) e painel em uso. -->
+      <div class="mf-app">
+        <aside class="mf-side">
+          <b class="mf-brand">Nortecar</b>
+          {modules.map((m, n) => (
+            <span class:list={['mf-mod', n === 0 && 'on']} style={`--i:${n}`}>
+              <i></i>{m}{n > 0 && <em class="mf-next">A seguir</em>}
+            </span>
+          ))}
+          <p class="mf-callout">Primeiro: o que mais tempo poupa</p>
+        </aside>
+        <div class="mf-main">
+          <div class="mf-head"><b>Reparações</b><small>quarta, 11 nov</small></div>
+
+          <div class="mf-table">
+            <div class="mf-tr mf-th"><span>Matrícula</span><span>Serviço</span><span>Estado</span></div>
+            {rows.map(([plate, job, status, cls], n) => (
+              <div class="mf-tr" style={`--i:${n}`}><span><b>{plate}</b></span><span>{job}</span><span><em class={cls}>{status}</em></span></div>
+            ))}
+            <span class="mf-imported">Importado do Excel ✓</span>
+          </div>
+          <div class="mf-xls">
+            <span class="mf-xls-head">reparacoes_v4_FINAL.xlsx</span>
+            {rows.map(([plate, job], n) => <span class="mf-xr" style={`--i:${n}`}>{plate}<span>{job}</span></span>)}
+          </div>
+
+          <div class="mf-board">
+            <div class="mf-stats">
+              <span><b><span class="mf-swap"><span class="a">7</span><span class="b">6</span></span></b>em curso</span>
+              <span><b>2</b>à espera de peças</span>
+              <span><b><span class="mf-swap"><span class="a">3</span><span class="b">4</span></span></b>prontas</span>
+            </div>
+            <div class="mf-cols">
+              <div class="mf-col"><small>Em curso</small><i class="mf-slot"></i><span class="mf-card"><b>33-LB-07</b>Mudança de óleo</span></div>
+              <div class="mf-col"><small>À espera de peças</small><span class="mf-card wait"><b>12-RT-90</b>Embraiagem</span></div>
+              <div class="mf-col"><small>Pronta</small><span class="mf-card ok"><b>45-QX-12</b>Revisão</span><span class="mf-card ok"><b>BX-51-PD</b>Pneus</span><span class="mf-card ok mf-moving"><b>AV-08-LM</b>Travões</span></div>
+            </div>
+            <div class="mf-toast"><i></i>SMS enviado ao cliente: AV-08-LM pronto</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <FilmControls chapters={chapters} />
+</div>

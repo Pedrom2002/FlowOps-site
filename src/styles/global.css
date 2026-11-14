@@ -6,6 +6,7 @@
 @import './films.css';
 @import './website-film.css';
 @import './app-film.css';
+@import './management-film.css';
 @import './motion.css';
 
 /* Tokens da marca (brand board aprovada). Contrastes WCAG em README.md. */
