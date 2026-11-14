@@ -46,6 +46,11 @@ const problems = defineCollection({
     icons: z.array(z.enum(['paper', 'clock', 'sheet', 'chat', 'browser-question', 'mail', 'phone'])).min(1).max(3),
     problem: z.string(),
     solution: z.string(),
+    /** Número grande no rodapé do palco: o valor troca de "antes" para "depois". Exemplo ilustrativo. */
+    metric: z.object({
+      before: z.object({ value: z.string(), label: z.string() }),
+      after: z.object({ value: z.string(), label: z.string() }),
+    }),
   }),
 });
 

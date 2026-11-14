@@ -9,7 +9,11 @@
       "clock"
     ],
     "problem": "Tarefas manuais e repetitivas que ocupam horas todas as semanas.",
-    "solution": "Automatizamos o que se repete."
+    "solution": "Automatizamos o que se repete.",
+    "metric": {
+      "before": { "value": "4 h", "label": "por semana a passar faturas e guias à mão" },
+      "after": { "value": "0 h", "label": "faturas e guias saem sozinhas, à hora certa" }
+    }
   },
   {
     "id": "informacao-espalhada",
@@ -21,7 +25,11 @@
       "chat"
     ],
     "problem": "Informação espalhada entre papel, Excel e WhatsApp.",
-    "solution": "Um único sistema, sempre atualizado."
+    "solution": "Um único sistema, sempre atualizado.",
+    "metric": {
+      "before": { "value": "4 sítios", "label": "onde procurar para saber como está um pedido" },
+      "after": { "value": "1 lista", "label": "com todos os pedidos e o estado de cada um" }
+    }
   },
   {
     "id": "presenca-online",
@@ -31,7 +39,11 @@
       "browser-question"
     ],
     "problem": "Sem presença online, ou com um website que não ajuda.",
-    "solution": "Um website profissional, pensado para gerar contactos."
+    "solution": "Um website profissional, pensado para gerar contactos.",
+    "metric": {
+      "before": { "value": "2014", "label": "foi a última vez que o site mudou" },
+      "after": { "value": "24 h", "label": "por dia a receber pedidos de orçamento" }
+    }
   },
   {
     "id": "pedidos-perdidos",
@@ -43,6 +55,10 @@
       "phone"
     ],
     "problem": "Clientes e pedidos que se perdem pelo caminho.",
-    "solution": "Cada pedido registado e acompanhado até ao fim."
+    "solution": "Cada pedido registado e acompanhado até ao fim.",
+    "metric": {
+      "before": { "value": "6 dias", "label": "um orçamento ficou sem resposta" },
+      "after": { "value": "0", "label": "pedidos sem ninguém responsável" }
+    }
   }
 ]
