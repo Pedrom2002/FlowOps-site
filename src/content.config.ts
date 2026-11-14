@@ -57,6 +57,8 @@ const services = defineCollection({
     text: z.string(),
     example: z.string(),
     preview: z.enum(['website', 'app', 'dashboard', 'automation', 'integration', 'support']),
+    /** Problemas (ids de problems.json) que este serviço resolve, com a frase "porquê" mostrada no filtro. */
+    solves: z.record(z.string(), z.string()),
   }),
 });
 

@@ -46,6 +46,27 @@
   .hero-pause { display: none; }
   .motion .hero-pause { display: grid; }
 
+  /* --- O que fazemos: cada pré-visualização faz a sua ação uma vez quando o cartão fica .is-playing
+     (entra no ecrã, aparece no filtro, ou recebe o rato ou um toque; ver initServices em scripts/motion.ts). --- */
+  .motion .sv-card.is-playing .mk-btn.sv-swap { animation: sv-press .5s ease .5s both; }
+  .motion .sv-card.is-playing .mk-class em.sv-swap { animation: sv-booked .3s ease .9s both; }
+  .motion .sv-card.is-playing .sv-swap .sv-a { animation: sv-out .2s ease .85s forwards; }
+  .motion .sv-card.is-playing .sv-swap .sv-b { animation: sv-in .3s ease .95s forwards; }
+  @keyframes sv-press { 50% { transform: scale(.92); } to { transform: none; background: var(--color-ink); } }
+  @keyframes sv-booked { to { background: var(--color-soft); color: var(--color-brand-strong); } }
+  @keyframes sv-out { to { opacity: 0; visibility: hidden; } }
+  @keyframes sv-in { from { opacity: 0; visibility: visible; transform: translateY(3px); } to { opacity: 1; visibility: visible; transform: none; } }
+  .motion .sv-card.is-playing .mk-bars i { transform-origin: bottom; animation: hp-bar .6s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(.15s + var(--i, 0) * 70ms); }
+  .motion .sv-card.is-playing .mk-note { animation: sv-note .4s ease both; animation-delay: calc(.15s + var(--i, 0) * .35s); }
+  .motion .sv-card.is-playing :is(.mk-note, .mk-status div) .mk-ok { animation: sv-pop .3s cubic-bezier(.2, .9, .3, 1.4) both; animation-delay: calc(.45s + var(--i, 0) * .35s); }
+  @keyframes sv-note { from { opacity: 0; transform: translateY(10px); } }
+  @keyframes sv-pop { from { transform: scale(0); } }
+  .motion .sv-card.is-playing .sv-dot { animation: sv-travel 1.3s ease-in-out .2s both; }
+  .motion .sv-card.is-playing .mk-cal .gr i.n { animation: sv-pop .35s cubic-bezier(.2, .9, .3, 1.4) 1.45s both; }
+  @keyframes sv-travel { 0% { left: 6%; opacity: 0; } 10%, 85% { opacity: 1; } 100% { left: 94%; opacity: 0; } }
+  .motion .sv-card.is-playing .mk-online::before { animation: sv-ping 1s ease .2s 2; }
+  @keyframes sv-ping { 50% { box-shadow: 0 0 0 6px #cfe6e0; } }
+
   /* --- Aparecimento ao fazer scroll --- */
   .motion .reveal { transition: opacity .6s ease, transform .5s ease, box-shadow .25s ease, border-color .25s ease; }
   .motion .reveal:not(.in) {

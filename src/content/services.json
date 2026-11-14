@@ -5,7 +5,11 @@
     "title": "Websites",
     "text": "Sites profissionais e rápidos, pensados para serem encontrados e gerarem contactos.",
     "example": "website de uma padaria com encomendas para o dia seguinte.",
-    "preview": "website"
+    "preview": "website",
+    "solves": {
+      "presenca-online": "Um site rápido e claro, com o pedido de contacto à vista em cada página.",
+      "pedidos-perdidos": "Pedidos e marcações online que chegam organizados, em vez de chamadas perdidas."
+    }
   },
   {
     "id": "apps",
@@ -13,7 +17,10 @@
     "title": "Apps",
     "text": "Aplicações Android e iOS, a área em que temos formação específica.",
     "example": "app para os sócios de um ginásio reservarem aulas.",
-    "preview": "app"
+    "preview": "app",
+    "solves": {
+      "pedidos-perdidos": "Os clientes reservam e fazem pedidos sozinhos, mesmo fora do horário."
+    }
   },
   {
     "id": "sistemas-de-gestao",
@@ -21,7 +28,11 @@
     "title": "Sistemas de gestão à medida",
     "text": "Clientes, pedidos, stock e agenda num só sistema, simples de usar.",
     "example": "painel de reparações da Oficina Nortecar.",
-    "preview": "dashboard"
+    "preview": "dashboard",
+    "solves": {
+      "tarefas-manuais": "Fichas, estados e documentos num só sítio, sem copiar dados à mão.",
+      "informacao-espalhada": "Clientes, pedidos e stock no mesmo sistema, que toda a equipa consulta."
+    }
   },
   {
     "id": "automatizacoes",
@@ -29,7 +40,11 @@
     "title": "Automatizações",
     "text": "Lembretes, emails, faturas e relatórios que se fazem sozinhos.",
     "example": "aviso automático ao cliente quando a encomenda está pronta.",
-    "preview": "automation"
+    "preview": "automation",
+    "solves": {
+      "tarefas-manuais": "Faturas, lembretes e relatórios enviados sem ninguém ter de se lembrar.",
+      "pedidos-perdidos": "Cada pedido recebe resposta automática e fica registado para seguimento."
+    }
   },
   {
     "id": "integracoes",
@@ -37,7 +52,11 @@
     "title": "Integrações",
     "text": "Ligamos as ferramentas que o negócio já utiliza.",
     "example": "marcações do website da Clínica Vértice a entrar diretamente na agenda.",
-    "preview": "integration"
+    "preview": "integration",
+    "solves": {
+      "tarefas-manuais": "Os dados passam de uma ferramenta para a outra sem serem escritos duas vezes.",
+      "informacao-espalhada": "Ligamos o que já usa (email, agenda, faturação) para a informação não se perder."
+    }
   },
   {
     "id": "manutencao-e-suporte",
@@ -45,6 +64,9 @@
     "title": "Manutenção e suporte",
     "text": "Alojamento, atualizações de segurança e melhorias contínuas.",
     "example": "correções e pequenas alterações tratadas por nós.",
-    "preview": "support"
+    "preview": "support",
+    "solves": {
+      "presenca-online": "O site fica atualizado, seguro e no ar, com as alterações tratadas por nós."
+    }
   }
 ]

@@ -266,6 +266,36 @@
   /* --- serviços --- */
   .sv-mini { position: relative; overflow: hidden; height: 172px; margin: -4px -4px 8px; padding: 14px; border-radius: 10px; background: var(--color-soft); color: var(--color-ink); font-size: 0.72rem; line-height: 1.35; }
   .sv-inner { transition: transform .35s ease; }
+  /* Filtro por problema (initServices em scripts/motion.ts). */
+  .sv-filter { display: grid; gap: 12px; margin: -12px 0 22px; }
+  .sv-filter-q { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--color-ink); }
+  .sv-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  /* Telemóvel: os problemas ficam numa faixa com scroll horizontal, em vez de um por linha. */
+  @media (max-width: 639px) {
+    .sv-chips { flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; padding: 2px 0 4px; }
+    .sv-chips::-webkit-scrollbar { display: none; }
+    .sv-chip { flex: none; scroll-snap-align: start; padding: 0 14px; }
+  }
+  .sv-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid #c9d8d4; border-radius: 999px; background: #fff; color: var(--color-ink); font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: background-color .2s, border-color .2s, color .2s; }
+  .sv-chip-n { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--color-soft); color: var(--color-brand-strong); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+  .sv-chip[aria-pressed="true"] { background: var(--color-brand); border-color: var(--color-brand); color: #fff; }
+  .sv-chip[aria-pressed="true"] .sv-chip-n { background: rgb(255 255 255 / .2); color: #fff; }
+  @media (hover: hover) { .sv-chip[aria-pressed="false"]:hover { border-color: var(--color-brand); color: var(--color-brand-strong); } }
+  .sv-result { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; min-height: 44px; }
+  .sv-status { color: var(--color-muted); font-size: 0.95rem; }
+  .sv-status b { color: var(--color-ink); }
+  .sv-wa { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 700; color: var(--color-brand-strong); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+  .sv-wa:hover { text-decoration-thickness: 2px; }
+  .sv-wa svg { width: 18px; height: 18px; }
+  .sv-why { border-radius: 8px; background: #e3f2ee; padding: 8px 12px; font-size: 0.88rem; }
+  .sv-card.sv-enter { animation: sv-enter .35s ease both; }
+  @keyframes sv-enter { from { opacity: 0; transform: translateY(8px); } }
+  /* Texto que troca na pré-visualização: as duas versões ocupam o mesmo sítio (a largura é a da maior). */
+  .sv-swap { display: inline-grid; white-space: nowrap; }
+  .sv-swap > span { grid-area: 1 / 1; }
+  .sv-swap .sv-b { visibility: hidden; }
+  .sv-mini .mk-flow { position: relative; }
+  .sv-dot { position: absolute; top: 50%; left: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--color-amber); opacity: 0; }
   @media (hover: hover) { .sv-card:hover .sv-inner { transform: translateY(-4px); } }
 
   /* --- casos --- */
@@ -308,6 +338,8 @@
   @media (max-width: 700px) { .wm-f { right: -45%; height: 90%; } }
 
   @media (prefers-reduced-motion: reduce) {
+    .sv-card.sv-enter { animation: none; }
+    .sv-chip { transition: none; }
     .sv-inner, .cs-device, .cs-scroll, .cs-toast, .cs-pick, .cs-pick-btn, .lift, .hp-toast, .hero-phone [data-hp] { transition: none; }
     .hp-row.log.is-new, .hp-view.is-in > *, .hp-msg.is-new { animation: none; }
     .case-card .cs-device, .case-card .cs-scroll, .lift:hover, .lift:active, .sv-card .sv-inner { transform: none !important; }
