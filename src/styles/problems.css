@@ -369,7 +369,7 @@
   /* Ao aterrar, a altura passa da do papel à da linha com transição (o JS fixa as duas alturas). */
   .motion .pb-piece.is-land { overflow: hidden; }
   /* Mensagem nova a meio da confusão. */
-  .motion .pb-stage.is-before:not(.is-wait) .pb-piece.b-pop { animation: pb-pop .55s cubic-bezier(.3, 1.6, .5, 1) 1.15s both; }
+  .motion .pb-stage.is-before:not(.is-wait) .pb-piece.b-pop { animation: pb-pop .5s cubic-bezier(.3, 1.6, .5, 1) .85s both; }
   @keyframes pb-pop { from { opacity: 0; scale: .5; } }
   .motion .pb-m { transition: opacity .35s ease, translate .35s ease, visibility 0s linear .35s; }
   .motion .pb-stage:not(.is-pending) .pb-m-a,

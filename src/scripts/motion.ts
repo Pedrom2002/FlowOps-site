@@ -150,8 +150,8 @@ function initProblems() {
   const pauseLabel = pauseBtn?.querySelector<HTMLElement>('[data-label]');
   const pieces = scenes.map((s) => [...s.querySelectorAll<HTMLElement>('.pb-piece')]);
   const N = scenes.length;
-  const MESS_MS = 2000; // tempo a mostrar a confusão antes de arrumar (as peças caem e chega a mensagem nova)
-  const STEP_MS = 8000; // tempo de cada problema (igual a --step no CSS)
+  const MESS_MS = 1500; // tempo a mostrar a confusão antes de arrumar (as peças caem e chega a mensagem nova)
+  const STEP_MS = 6000; // tempo de cada problema (igual a --step no CSS)
   root.style.setProperty('--step', `${STEP_MS}ms`);
   let current = 0;
   let tidyTimer = 0;
@@ -381,6 +381,22 @@ function initProblems() {
 }
 
 initReveal();
+// 5. Compromissos: quando a folha aparece, as cláusulas recebem o visto uma a uma (tempos no CSS). Corre uma vez.
+function initCommit() {
+  const doc = document.querySelector<HTMLElement>('[data-cm]');
+  if (!doc || !motion) return;
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry?.isIntersecting) return;
+      io.disconnect();
+      doc.classList.add('is-on');
+    },
+    { threshold: 0.25 },
+  );
+  io.observe(doc);
+}
+
 initFlow();
+initCommit();
 initHero();
 initProblems();
