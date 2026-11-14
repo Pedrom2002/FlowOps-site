@@ -1,0 +1,110 @@
+---
+// "Vídeo" do painel Websites: o site de uma padaria fictícia passa de fraco a um site que recebe encomendas,
+// em 5 etapas dentro da mesma janela de browser. O estado é data-step (0 a 4) e as classes at-1..at-4
+// (cumulativas) no .wf; o avanço, a pausa e as etapas são geridos por initWebsiteFilm em scripts/motion.ts.
+// Sem JavaScript ou com movimento reduzido, mostra o resultado final e os botões das etapas mudam sem animação.
+// Estilos: website-film.css. Sem números de resultados (seriam estatísticas inventadas).
+const chapters = [
+  { label: 'Antes', caption: 'O site atual: difícil de ler, sem contacto à vista e sem forma de encomendar.' },
+  { label: 'Diagnóstico', caption: 'Marcamos o que está a afastar clientes.' },
+  { label: 'Estrutura', caption: 'Organizamos a página à volta do que o cliente procura.' },
+  { label: 'Design', caption: 'A marca, os produtos e um botão de encomenda bem à vista.' },
+  { label: 'Publicado', caption: 'O site fica no ar e as encomendas chegam diretamente à padaria.' },
+];
+const last = chapters.length - 1;
+const products = [
+  ['Centeio', '3,20 €'],
+  ['Broa de milho', '2,50 €'],
+  ['Croissant', '1,30 €'],
+];
+---
+<div class="wf at-1 at-2 at-3 at-4" data-wf data-step={last} data-durations="2600,3400,2700,3100,4200">
+  <div class="wf-screen" aria-hidden="true">
+    <div class="wf-bar">
+      <span class="wf-dots"><i></i><i></i><i></i></span>
+      <span class="wf-url">
+        <svg class="wf-lock" viewBox="0 0 24 24"><rect x="6" y="11" width="12" height="9" rx="2" /><path d="M9 11V8a3 3 0 0 1 6 0v3" /></svg>
+        <span class="wf-url-old"><em>Não seguro</em>http://www.padarialumen.pt/index.html</span>
+        <span class="wf-url-test"><em>Versão de teste</em>teste.padarialumen.pt</span>
+        <span class="wf-url-new">padarialumen.pt</span>
+      </span>
+    </div>
+
+    <div class="wf-page">
+      <!-- Etapa 1: o site antigo. -->
+      <div class="wf-old">
+        <p class="wf-old-news">*** ABERTO TAMBÉM AOS DOMINGOS ***</p>
+        <p class="wf-old-title">Bem-vindos à Padaria Lumen!!!</p>
+        <div class="wf-old-img">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1" /><path d="M3 15l5-5 4 4 3-3 6 6" /><path d="M14 4l-3 7 4 2-3 7" /></svg>
+          <span>pao_final2.jpg</span>
+        </div>
+        <p class="wf-old-text">A Padaria Lumen foi fundada há muitos anos e desde então temos o melhor pão da zona. Temos pão, bolos, salgados e muito mais. Venha visitar-nos! <u>Clique aqui</u> para ver a galeria de fotos.</p>
+        <p class="wf-old-links"><u>Livro de visitas</u> | <u>Links</u> | <u>Contactos</u></p>
+        <table class="wf-old-hours"><tr><td>Seg. a Sáb.</td><td>7h - 20h</td></tr><tr><td>Domingo</td><td>8h - 13h</td></tr></table>
+        <p class="wf-old-foot">Tel: 21 000 0000 | Última atualização: 2016</p>
+      </div>
+
+      <!-- Etapa 2: diagnóstico, marcações desenhadas à mão sobre o site antigo. -->
+      <svg class="wf-marks" viewBox="0 0 160 110" preserveAspectRatio="none">
+        <path pathLength="1" style="--i:0" d="M25.6 19.8A54.4 8.2 0 1 1 134.4 17.6A54.4 8.2 0 1 1 33.6 21.5" />
+        <path pathLength="1" style="--i:1" d="M64.0 45.7A44.0 13.2 0 1 1 152.0 43.5A44.0 13.2 0 1 1 72.0 47.3" />
+        <path pathLength="1" style="--i:2" d="M6.4 102.9A30.4 5.0 0 1 1 67.2 100.7A30.4 5.0 0 1 1 14.4 104.5" />
+      </svg>
+      <span class="wf-tag" style="--i:0; --x:66%; --y:25%">Difícil de ler</span>
+      <span class="wf-tag" style="--i:1; --x:56%; --y:57%">Sem forma de encomendar</span>
+      <span class="wf-tag" style="--i:2; --x:40%; --y:83%">Contacto escondido</span>
+
+      <!-- Etapas 3 a 5: o mesmo conjunto de blocos é esboço (estrutura) e depois site acabado (design). -->
+      <div class="wf-new">
+        <div class="wf-b wf-nav" style="--i:0">
+          <b class="wf-t">Lumen</b>
+          <span class="wf-t wf-links"><span>Pães</span><span>Encomendas</span><span>Contacto</span></span>
+        </div>
+        <div class="wf-b wf-title" style="--i:1"><span class="wf-t">Pão de fermentação lenta, feito todas as manhãs.</span></div>
+        <div class="wf-b wf-sub" style="--i:2"><span class="wf-t">Encomende hoje, levante amanhã a partir das 7h.</span></div>
+        <div class="wf-b wf-cta" style="--i:3"><span class="wf-t">Fazer encomenda</span></div>
+        <div class="wf-b wf-img" style="--i:2">
+          <svg class="wf-t wf-loaf" viewBox="0 0 120 90">
+            <ellipse cx="60" cy="74" rx="44" ry="6" fill="#e9cfa6" />
+            <path d="M14 58c0-24 20-40 46-40s46 16 46 40c0 9-8 14-46 14S14 67 14 58z" fill="#c4823f" />
+            <path d="M22 54c0-18 16-30 38-30s38 12 38 30" fill="none" stroke="#d99a55" stroke-width="5" stroke-linecap="round" opacity=".55" />
+            <path d="M38 34l8 14M56 28l6 16M74 30l4 15" stroke="#f3d9ae" stroke-width="4" stroke-linecap="round" />
+          </svg>
+        </div>
+        {products.map(([name, price], n) => (
+          <div class="wf-b wf-prod" style={`--i:${4 + n}; --col:${n}`}>
+            <i class="wf-t wf-prod-dot"></i>
+            <span class="wf-t"><b>{name}</b><small>{price}</small></span>
+          </div>
+        ))}
+      </div>
+
+      <!-- Etapa 5: publicado; o cursor carrega no botão e chegam encomendas. -->
+      <svg class="wf-cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6 2-2 6z" /></svg>
+      <div class="wf-toasts">
+        <div class="wf-toast" style="--i:0"><span class="wf-ok"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10" /></svg></span><span><b>Nova encomenda</b>2 pães de centeio para amanhã</span></div>
+        <div class="wf-toast" style="--i:1"><span class="wf-ok"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10" /></svg></span><span><b>Nova encomenda</b>Bolo de aniversário para sábado</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wf-controls">
+    <button type="button" class="wf-play" data-wf-play aria-label="Reproduzir vídeo">
+      <svg class="wf-i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" /></svg>
+      <svg class="wf-i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
+      <svg class="wf-i-replay" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /><path d="M4 3v5h5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    </button>
+    <div class="wf-chapters" role="group" aria-label="Etapas do vídeo">
+      {chapters.map((c, n) => (
+        <button type="button" class="wf-ch" data-wf-ch={n} aria-label={`Etapa ${n + 1} de ${chapters.length}: ${c.label}`} aria-current={n === last ? 'step' : undefined}>
+          <span class="wf-track"><i class="wf-fill"></i></span>
+          <span class="wf-ch-label" aria-hidden="true">{c.label}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+  <p class="wf-caption" data-wf-caption aria-live="off">
+    {chapters.map((c, n) => <span data-wf-cap={n} hidden={n !== last}><b>{c.label}.</b> {c.caption}</span>)}
+  </p>
+</div>

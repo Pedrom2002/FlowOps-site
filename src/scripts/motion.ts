@@ -492,7 +492,13 @@ function initServices() {
       t.setAttribute('aria-selected', String(n === next));
       t.tabIndex = n === next ? 0 : -1;
     });
-    panels.forEach((p, n) => (p.hidden = n !== next));
+    panels.forEach((p, n) => {
+      const was = !p.hidden;
+      p.hidden = n !== next;
+      // Avisa o conteúdo do painel (ex.: o vídeo do website) de que abriu ou fechou.
+      if (n === next && (!was || next !== current)) p.dispatchEvent(new CustomEvent('sv-open'));
+      if (n !== next && was) p.dispatchEvent(new CustomEvent('sv-close'));
+    });
     if (focus) tab.focus();
     // Em ecrãs estreitos a barra tem scroll horizontal: mantém o separador escolhido à vista.
     const bar = tab.parentElement;
@@ -534,8 +540,134 @@ function initServices() {
   if (first) io.observe(first);
 }
 
+// 6. Vídeo do website (painel Websites): 5 etapas, de site fraco a site que recebe encomendas. Começa quando o
+// painel aparece no ecrã ou é aberto, toca uma vez e pára no resultado final. Botão de pausa/reproduzir/ver de
+// novo e botões por etapa. Sem movimento, fica no resultado final e os botões mudam de etapa sem animação.
+function initWebsiteFilm() {
+  const film = document.querySelector<HTMLElement>('[data-wf]');
+  if (!film) return;
+  const durations = (film.dataset.durations ?? '').split(',').map(Number);
+  const last = durations.length - 1;
+  const chapters = [...film.querySelectorAll<HTMLButtonElement>('[data-wf-ch]')];
+  const fills = chapters.map((c) => c.querySelector<HTMLElement>('.wf-fill'));
+  const caps = [...film.querySelectorAll<HTMLElement>('[data-wf-cap]')];
+  const caption = film.querySelector<HTMLElement>('[data-wf-caption]');
+  const btn = film.querySelector<HTMLButtonElement>('[data-wf-play]');
+  const panel = film.closest<HTMLElement>('[data-sv-panel]');
+  let step = last;
+  let t = durations[last] ?? 0; // ms já passados na etapa atual
+  let state: 'playing' | 'paused' | 'ended' = 'ended';
+  let userPaused = false;
+  let visible = false;
+  let frame = 0;
+  let prev = 0;
+
+  const paintFills = () =>
+    fills.forEach((f, n) => f?.style.setProperty('--p', String(n < step ? 1 : n > step ? 0 : Math.min(1, t / (durations[n] || 1)))));
+  const render = () => {
+    film.dataset.step = String(step);
+    for (let k = 1; k <= last; k++) film.classList.toggle(`at-${k}`, step >= k);
+    chapters.forEach((c, n) => (n === step ? c.setAttribute('aria-current', 'step') : c.removeAttribute('aria-current')));
+    caps.forEach((c, n) => (c.hidden = n !== step));
+    paintFills();
+  };
+  const setState = (s: typeof state) => {
+    state = s;
+    film.dataset.state = s;
+    film.classList.toggle('is-paused', s !== 'playing');
+    btn?.setAttribute('aria-label', s === 'playing' ? 'Pausar vídeo' : s === 'ended' ? 'Ver de novo' : 'Reproduzir vídeo');
+  };
+  const tick = (now: number) => {
+    if (state !== 'playing') return;
+    t += now - prev;
+    prev = now;
+    if (t >= (durations[step] ?? 0)) {
+      if (step === last) {
+        t = durations[last] ?? 0;
+        paintFills();
+        setState('ended');
+        return;
+      }
+      step++;
+      t = 0;
+      render();
+    } else paintFills();
+    frame = requestAnimationFrame(tick);
+  };
+  const play = () => {
+    if (!motion) return;
+    if (state === 'ended') {
+      step = 0;
+      t = 0;
+      render();
+    }
+    setState('playing');
+    prev = performance.now();
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(tick);
+  };
+  const pause = () => {
+    cancelAnimationFrame(frame);
+    if (state === 'playing') setState('paused');
+  };
+  // Escolher uma etapa salta para ela e reproduz a partir daí (em pausa, as animações da etapa ficariam
+  // congeladas no primeiro fotograma, ex.: as encomendas da última etapa não apareciam).
+  const goTo = (i: number) => {
+    step = i;
+    t = 0;
+    render();
+    if (!motion) return;
+    userPaused = false;
+    if (state !== 'playing') setState('paused');
+    play();
+  };
+
+  chapters.forEach((c, n) =>
+    c.addEventListener('click', () => {
+      if (caption) caption.setAttribute('aria-live', 'polite'); // a pessoa escolheu: anuncia a legenda
+      goTo(n);
+    }),
+  );
+  if (!motion) return;
+
+  btn?.addEventListener('click', () => {
+    if (state === 'playing') {
+      userPaused = true;
+      pause();
+    } else {
+      userPaused = false;
+      play();
+    }
+  });
+  // Começa no "antes"; arranca quando o painel está à vista, pausa quando sai do ecrã ou o painel fecha.
+  step = 0;
+  t = 0;
+  render();
+  setState('paused');
+  new IntersectionObserver(
+    ([entry]) => {
+      visible = !!entry?.isIntersecting;
+      if (!visible) pause();
+      else if (state === 'paused' && !userPaused) play();
+    },
+    { threshold: 0.5 },
+  ).observe(film);
+  panel?.addEventListener('sv-open', () => {
+    // Recomeça do início; o IntersectionObserver arranca-o quando o painel ficar à vista.
+    userPaused = false;
+    cancelAnimationFrame(frame);
+    step = 0;
+    t = 0;
+    render();
+    setState('paused');
+    if (visible) play();
+  });
+  panel?.addEventListener('sv-close', pause);
+}
+
 initReveal();
 initFlow();
 initHero();
 initProblems();
 initServices();
+initWebsiteFilm();

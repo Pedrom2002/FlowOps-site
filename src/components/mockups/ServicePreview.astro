@@ -3,22 +3,12 @@
 // Com movimento, cada uma faz a sua ação quando o cartão fica .is-playing (ver motion.css e initServices):
 // .sv-swap troca o texto .sv-a pelo .sv-b; --i escalona barras, notificações e vistos.
 import Icon from '../ui/Icon.astro';
-interface Props { kind: 'website' | 'app' | 'dashboard' | 'automation' | 'integration' | 'support' }
+// O website tem a sua própria pré-visualização em vídeo (WebsiteFilm.astro).
+interface Props { kind: 'app' | 'dashboard' | 'automation' | 'integration' | 'support' }
 const { kind } = Astro.props;
 ---
 <div class="sv-mini" aria-hidden="true">
   <div class="sv-inner">
-    {kind === 'website' && (
-      <div class="mk-browser">
-        <div class="mk-browser-bar"><i></i><i></i><i></i><b></b></div>
-        <div class="mk-browser-body">
-          <span class="mk-name">Padaria Lumen</span>
-          <div class="mk-shapes sm"><i></i><i></i><i></i></div>
-          <span>Encomende hoje, levante amanhã.</span>
-          <span class="mk-btn sv-swap"><span class="sv-a">Fazer encomenda</span><span class="sv-b">Encomenda recebida</span></span>
-        </div>
-      </div>
-    )}
     {kind === 'app' && (
       <div class="mk-mini-phone"><div class="mk-mini-scr">
         <span class="mk-name">Ginásio Órbita</span>
