@@ -540,19 +540,21 @@ function initServices() {
   if (first) io.observe(first);
 }
 
-// 6. Vídeo do website (painel Websites): 5 etapas, de site fraco a site que recebe encomendas. Começa quando o
-// painel aparece no ecrã ou é aberto, toca uma vez e pára no resultado final. Botão de pausa/reproduzir/ver de
-// novo e botões por etapa. Sem movimento, fica no resultado final e os botões mudam de etapa sem animação.
-function initWebsiteFilm() {
-  const film = document.querySelector<HTMLElement>('[data-wf]');
-  if (!film) return;
+// 6. "Vídeos" dos serviços ([data-film]: WebsiteFilm, AppFilm, ...): etapas com duração em data-durations e classes
+// cumulativas at-1..at-N no próprio elemento. Começa quando o painel aparece no ecrã ou é aberto, toca uma vez e
+// pára no resultado final. Botão de pausa/reproduzir/ver de novo e botões por etapa (FilmControls.astro). Sem
+// movimento, fica no resultado final e os botões mudam de etapa sem animação.
+function initFilms() {
+  document.querySelectorAll<HTMLElement>('[data-film]').forEach(initFilm);
+}
+function initFilm(film: HTMLElement) {
   const durations = (film.dataset.durations ?? '').split(',').map(Number);
   const last = durations.length - 1;
-  const chapters = [...film.querySelectorAll<HTMLButtonElement>('[data-wf-ch]')];
-  const fills = chapters.map((c) => c.querySelector<HTMLElement>('.wf-fill'));
-  const caps = [...film.querySelectorAll<HTMLElement>('[data-wf-cap]')];
-  const caption = film.querySelector<HTMLElement>('[data-wf-caption]');
-  const btn = film.querySelector<HTMLButtonElement>('[data-wf-play]');
+  const chapters = [...film.querySelectorAll<HTMLButtonElement>('[data-film-ch]')];
+  const fills = chapters.map((c) => c.querySelector<HTMLElement>('.film-fill'));
+  const caps = [...film.querySelectorAll<HTMLElement>('[data-film-cap]')];
+  const caption = film.querySelector<HTMLElement>('[data-film-caption]');
+  const btn = film.querySelector<HTMLButtonElement>('[data-film-play]');
   const panel = film.closest<HTMLElement>('[data-sv-panel]');
   let step = last;
   let t = durations[last] ?? 0; // ms já passados na etapa atual
@@ -670,4 +672,4 @@ initFlow();
 initHero();
 initProblems();
 initServices();
-initWebsiteFilm();
+initFilms();

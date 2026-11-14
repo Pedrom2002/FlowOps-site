@@ -294,11 +294,6 @@
     .sv-stage .sv-mini { min-height: 240px; zoom: 1.4; }
     .sv-body { padding: 36px 40px; }
   }
-  /* Texto que troca na pré-visualização: as duas versões ocupam o mesmo sítio (a largura é a da maior). */
-  .sv-swap { display: inline-grid; white-space: nowrap; }
-  .sv-swap > span { grid-area: 1 / 1; }
-  .sv-swap .sv-b { visibility: hidden; }
-  .mk-class .sv-swap > span { color: inherit; } /* senão herda o cinzento de .mk-class span */
   .sv-mini .mk-flow { position: relative; }
   .sv-dot { position: absolute; top: 50%; left: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--color-amber); opacity: 0; }
   @media (hover: hover) { .sv-card:hover .sv-inner { transform: translateY(-4px); } }

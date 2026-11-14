@@ -1,0 +1,106 @@
+---
+import FilmControls from './FilmControls.astro';
+// "Vídeo" do painel Apps: os sócios de um ginásio fictício passam de um grupo de mensagens caótico a uma app
+// de reservas, em 5 etapas num telemóvel. Estado: data-step e classes cumulativas at-1..at-4 no .af (como em
+// WebsiteFilm); avanço e controlos em initFilms (scripts/motion.ts). Estilos: app-film.css.
+// O estado base de cada elemento é o da etapa final; sem movimento, as etapas mudam sem animação.
+const chapters = [
+  { label: 'Antes', caption: 'Hoje: marcações num grupo de mensagens, com perguntas repetidas e lugares perdidos.' },
+  { label: 'O essencial', caption: 'Definimos o essencial da primeira versão. O resto fica para mais tarde.' },
+  { label: 'Em teste', caption: 'Experimenta a app no seu telemóvel e ajustamos o que for preciso.' },
+  { label: 'Design', caption: 'A app acabada: os sócios veem as aulas e reservam lugar num toque.' },
+  { label: 'Publicado', caption: 'Na App Store e no Google Play, com aviso quando abre uma vaga.' },
+];
+const last = chapters.length - 1;
+const messages = [
+  'Ainda há vaga no pilates das 18h?',
+  'A aula de amanhã mantém-se?',
+  'Eu quero lugar!!',
+  'Alguém sabe o horário de sábado?',
+  'Já está cheio?',
+  'Quem cancelou a de ontem?',
+  'Liguei e ninguém atendeu',
+  'Há lista de espera?',
+  'Guardem-me um lugar, por favor',
+];
+const essentials = ['Ver as aulas da semana', 'Reservar lugar', 'Cancelar até 2 horas antes', 'Aviso quando abre vaga'];
+const later = ['Loja', 'Chat entre sócios'];
+const classes: [string, string, string, string][] = [
+  ['Pilates', '18:00', '3 lugares', '2 lugares'],
+  ['Treino funcional', '19:00', '5 lugares', ''],
+  ['Yoga', '20:00', '8 lugares', ''],
+  ['Spinning', '21:00', 'cheio', ''],
+];
+const days = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
+const tick = '<path d="M5 12l5 5 9-10" />';
+---
+<div class="film af at-1 at-2 at-3 at-4" data-film data-step={last} data-durations="3000,3200,3600,3200,4300">
+  <div class="af-phone" aria-hidden="true">
+    <div class="af-screen">
+      <div class="af-status"><b>9:41</b><span class="af-island"></span><span class="af-bat"></span></div>
+
+      <!-- 1. Antes: o grupo de mensagens a encher. -->
+      <div class="af-layer af-chat">
+        <div class="af-chat-head">
+          <i class="af-avatar"></i>
+          <span><b>Sócios Ginásio Órbita</b><small>grupo</small></span>
+          <em class="af-unread"></em>
+        </div>
+        <div class="af-msgs">
+          {messages.map((m, i) => <p class="af-msg" style={`--i:${i}`}><i style={`--c:${i % 3}`}></i><span>{m}</span></p>)}
+        </div>
+        <div class="af-typing"><i></i><i></i><i></i></div>
+      </div>
+
+      <!-- 2. O essencial: a lista da primeira versão. -->
+      <div class="af-layer af-plan">
+        <p class="af-h">Primeira versão</p>
+        <ul class="af-list">
+          {essentials.map((t, i) => <li style={`--i:${i}`}><i class="af-box"><svg viewBox="0 0 24 24" set:html={tick} /></i>{t}</li>)}
+        </ul>
+        <p class="af-h af-h2">Mais tarde</p>
+        <ul class="af-list af-later">
+          {later.map((t, i) => <li style={`--i:${i}`}><span>{t}</span></li>)}
+        </ul>
+      </div>
+
+      <!-- 3 e 4. A app: esboço em teste, depois acabada. -->
+      <div class="af-layer af-app">
+        <div class="af-test">Versão de teste</div>
+        <div class="af-b af-apphead" style="--i:0"><span class="af-t"><b>Aulas de hoje</b><small>quarta, 11 nov</small></span></div>
+        <div class="af-b af-days" style="--i:0">{days.map((d, i) => <span class:list={['af-t', i === 2 && 'on']}>{d}</span>)}</div>
+        {classes.map(([name, time, seats, after], i) => (
+          <div class="af-b af-class" style={`--i:${i + 1}`}>
+            <span class="af-t af-class-txt">
+              <b>{name}</b>
+              <small>{time}, {after ? <span class="af-swap"><span class="a">{seats}</span><span class="b">{after}</span></span> : seats}</small>
+            </span>
+            <span class:list={['af-res', i === 0 && 'is-first', seats === 'cheio' && 'is-full']}>
+              <span class="af-t">{i === 0 ? <span class="af-swap"><span class="a">Reservar</span><span class="b">Reservado ✓</span></span> : seats === 'cheio' ? 'Lista de espera' : 'Reservar'}</span>
+              {i === 0 && <i class="af-tap"></i>}
+            </span>
+            {i === 0 && <p class="af-comment"><small>Comentário do cliente</small>O botão podia ser maior?</p>}
+          </div>
+        ))}
+        <div class="af-b af-tabs" style="--i:4"><i></i><i></i><i></i></div>
+      </div>
+
+      <!-- 5. Publicado: ecrã inicial, a app instala-se e chega um aviso. -->
+      <div class="af-layer af-home">
+        <div class="af-icons">
+          {Array.from({ length: 15 }, (_, i) =>
+            i === 5 ? (
+              <span class="af-icon af-icon-app"><i class="af-ring"></i><i class="af-logo"></i><small>Órbita</small></span>
+            ) : (
+              <span class="af-icon"><i></i></span>
+            ),
+          )}
+        </div>
+        <div class="af-stores"><span>App Store</span><span>Google Play</span></div>
+        <div class="af-dock"><i></i><i></i><i></i><i></i></div>
+        <div class="af-notif"><i class="af-logo sm"></i><span><b>Órbita</b>Abriu uma vaga no Pilates de amanhã às 18h.</span></div>
+      </div>
+    </div>
+  </div>
+  <FilmControls chapters={chapters} />
+</div>

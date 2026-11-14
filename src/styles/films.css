@@ -1,0 +1,30 @@
+/* Comum aos "vídeos" dos serviços (WebsiteFilm, AppFilm, ...): contentor, pausa, ausência de movimento e
+   controlos (FilmControls.astro). O avanço das etapas é feito por initFilms em scripts/motion.ts. */
+@layer components {
+  .film { container: film / inline-size; display: grid; gap: 10px; width: 100%; }
+  .film.is-paused * { animation-play-state: paused !important; }
+
+  /* Sem movimento (reduzido, ou sem JavaScript): as etapas mudam sem transições. */
+  :root:not(.motion) .film * { transition: none !important; }
+
+  /* --- Controlos de vídeo --- */
+  .film-controls { display: flex; align-items: center; gap: 8px; }
+  .film-play { flex: none; display: none; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--color-ink); color: #fff; cursor: pointer; transition: background-color .2s; }
+  .motion .film-play { display: grid; }
+  .film-play:hover { background: var(--color-brand-strong); }
+  .film-play svg { width: 18px; height: 18px; fill: currentColor; }
+  .film-play svg:not(.film-i-play) { display: none; }
+  .film[data-state="playing"] .film-i-play, .film[data-state="ended"] .film-i-play { display: none; }
+  .film[data-state="playing"] .film-i-pause, .film[data-state="ended"] .film-i-replay { display: block; }
+  .film-chapters { flex: 1; display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); gap: 4px; }
+  .film-ch { display: grid; align-content: center; gap: 5px; min-height: 44px; text-align: left; cursor: pointer; }
+  .film-track { height: 4px; border-radius: 99px; background: #cde0da; overflow: hidden; transition: background-color .2s; }
+  .film-fill { display: block; width: calc(var(--p, 1) * 100%); height: 100%; border-radius: inherit; background: var(--color-brand); }
+  .film-ch-label { overflow: hidden; color: var(--color-muted); font-size: .72rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; transition: color .2s; }
+  .film-ch[aria-current="step"] .film-ch-label { color: var(--color-ink); }
+  .film-ch:hover .film-track { background: #b5d2ca; }
+  .film-ch:hover .film-ch-label { color: var(--color-ink); }
+  @container film (max-width: 360px) { .film-ch-label { display: none; } }
+  .film-caption { min-height: 2.8em; color: var(--color-ink); font-size: .92rem; line-height: 1.45; }
+  .film-caption b { color: var(--color-brand-strong); }
+}

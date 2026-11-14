@@ -1,0 +1,153 @@
+/* "Vídeo" do painel Apps (components/mockups/AppFilm.astro). Como em website-film.css: o estado base é o da
+   etapa final, as classes cumulativas at-1..at-4 no .af decidem o que se vê, e as animações só existem com
+   movimento (.motion). Controlos, pausa e ausência de movimento em films.css. */
+@property --af-n { syntax: '<integer>'; inherits: false; initial-value: 47; }
+@property --af-pct { syntax: '<number>'; inherits: false; initial-value: 100; }
+
+@layer components {
+  .af { max-width: 440px; justify-items: center; }
+  .af > .film-controls, .af > .film-caption { justify-self: stretch; }
+
+  /* --- Telemóvel --- */
+  .af-phone { container-type: inline-size; width: min(232px, 72%); padding: 7px; border-radius: 32px; background: var(--color-ink); box-shadow: 0 30px 50px -28px rgb(15 31 28 / .6); }
+  .af-screen { position: relative; aspect-ratio: 9 / 17.5; overflow: hidden; border-radius: 25px; background: #f4f6f6; color: var(--color-ink); font-size: 6.4cqi; line-height: 1.3; }
+  .af-status { position: absolute; z-index: 5; inset: 0 0 auto; height: 7%; display: flex; align-items: center; justify-content: space-between; padding: 0 9%; font-size: .8em; transition: color .4s; }
+  .af-island { position: absolute; left: 50%; top: 22%; width: 30%; height: 52%; translate: -50% 0; border-radius: 99px; background: #050a09; }
+  .af-bat { width: 7.5cqi; height: 3.6cqi; border: 1.5px solid currentColor; border-radius: 1.2cqi; opacity: .7; }
+  .af.at-4 .af-status { color: #fff; }
+
+  .af-layer { position: absolute; inset: 7% 0 0; display: flex; flex-direction: column; gap: 2.6cqi; padding: 0 6%; transition: opacity .45s, transform .55s cubic-bezier(.2, .9, .3, 1); }
+
+  /* --- 1. Antes: grupo de mensagens --- */
+  .af-chat { padding: 0; gap: 0; background: #ece6dc; }
+  .af.at-1 .af-chat { opacity: 0; transform: translateX(-18%); }
+  .af-chat-head { display: flex; align-items: center; gap: 2.6cqi; padding: 2.6cqi 5cqi; background: #fff; border-bottom: 1px solid #e3ddd2; }
+  .af-chat-head span { display: grid; line-height: 1.2; }
+  .af-chat-head b { font-size: .78em; }
+  .af-chat-head small { color: #7c8a86; font-size: .68em; }
+  .af-avatar { flex: none; width: 8.5cqi; height: 8.5cqi; border-radius: 50%; background: linear-gradient(135deg, #94a3b8, #64748b); }
+  .af-unread { margin-left: auto; display: grid; place-items: center; min-width: 8cqi; height: 7cqi; padding: 0 2cqi; border-radius: 99px; background: #d92d20; color: #fff; font-size: .62em; font-weight: 700; font-style: normal; counter-reset: af var(--af-n); }
+  .af-unread::after { content: counter(af); }
+  .af-msgs { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2.4cqi; padding: 4cqi 5cqi; overflow: hidden; }
+  .af-msg { display: flex; align-items: flex-end; gap: 2cqi; margin: 0; }
+  .af-msg i { flex: none; width: 6cqi; height: 6cqi; border-radius: 50%; background: #60a5fa; }
+  .af-msg i[style*="--c:1"] { background: #a78bfa; }
+  .af-msg i[style*="--c:2"] { background: #f59e0b; }
+  .af-msg span { padding: 2cqi 3cqi; border-radius: 3.4cqi 3.4cqi 3.4cqi 1cqi; background: #fff; font-size: .7em; box-shadow: 0 1px 1px rgb(0 0 0 / .08); }
+  .af-typing { display: flex; gap: 1.2cqi; align-self: flex-start; margin: 0 0 5cqi 13cqi; padding: 2.4cqi 3cqi; border-radius: 3.4cqi; background: #fff; }
+  .af-typing i { width: 1.6cqi; height: 1.6cqi; border-radius: 50%; background: #9aa6a3; }
+  .motion .af:not(.at-1) .af-msgs { animation: af-rise 3s cubic-bezier(.3, 0, .3, 1) both; }
+  .motion .af:not(.at-1) .af-msg { animation: af-pop-up .4s cubic-bezier(.2, .9, .3, 1.3) both; animation-delay: calc(.15s + var(--i) * .4s); }
+  .motion .af:not(.at-1) .af-unread { animation: af-count 2.6s steps(44) .15s both; }
+  .motion .af:not(.at-1) .af-typing i { animation: af-blink 1s ease-in-out infinite; }
+  .motion .af:not(.at-1) .af-typing i:nth-child(2) { animation-delay: .15s; }
+  .motion .af:not(.at-1) .af-typing i:nth-child(3) { animation-delay: .3s; }
+  @keyframes af-rise { from { transform: translateY(28%); } }
+  @keyframes af-count { from { --af-n: 3; } }
+  @keyframes af-blink { 50% { opacity: .3; transform: translateY(-.4cqi); } }
+
+  /* --- 2. O essencial --- */
+  .af-plan { padding-top: 6cqi; opacity: 0; transform: translateX(18%); }
+  .af.at-1:not(.at-2) .af-plan { opacity: 1; transform: none; }
+  .af.at-2 .af-plan { transform: translateX(-18%); }
+  .af-h { margin: 0 0 1cqi; font-family: var(--font-display); font-weight: 800; font-size: 1.2em; letter-spacing: -.02em; }
+  .af-h2 { margin-top: 3cqi; color: #6b7b77; font-size: .9em; }
+  .af-list { display: grid; gap: 2cqi; }
+  .af-list li { display: flex; align-items: center; gap: 3cqi; padding: 2.8cqi 3.4cqi; border-radius: 3cqi; background: #fff; font-size: .72em; font-weight: 600; }
+  .af-box { flex: none; display: grid; place-items: center; width: 5.6cqi; height: 5.6cqi; border: 2px solid var(--color-brand); border-radius: 1.6cqi; background: var(--color-brand); }
+  .af-box svg { width: 80%; fill: none; stroke: #fff; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+  .af-later li { background: transparent; border: 1.5px dashed #c6d2ce; color: #7c8a86; }
+  .af-later span { position: relative; }
+  .af-later span::after { content: ""; position: absolute; left: -2%; top: 55%; width: 104%; height: 1.5px; background: #7c8a86; }
+  .motion .af.at-1:not(.at-2) .af-list:not(.af-later) li { animation: af-pop-up .35s cubic-bezier(.2, .9, .3, 1.3) both; animation-delay: calc(.2s + var(--i) * .28s); }
+  .motion .af.at-1:not(.at-2) .af-box { animation: af-check .3s ease both; animation-delay: calc(.45s + var(--i) * .28s); }
+  .motion .af.at-1:not(.at-2) .af-box svg { animation: af-pop .35s cubic-bezier(.2, .9, .3, 1.6) both; animation-delay: calc(.5s + var(--i) * .28s); }
+  .motion .af.at-1:not(.at-2) .af-h2, .motion .af.at-1:not(.at-2) .af-later li { animation: af-pop-up .35s ease both; animation-delay: calc(1.5s + var(--i, 0) * .2s); }
+  .motion .af.at-1:not(.at-2) .af-later span::after { animation: af-strike .4s ease both; animation-delay: calc(2.1s + var(--i, 0) * .3s); }
+  @keyframes af-check { from { background: #fff; border-color: #b4c3be; } }
+  @keyframes af-strike { from { width: 0; } }
+
+  /* --- 3 e 4. A app (esboço em teste, depois acabada) --- */
+  .af-app { padding-top: 5cqi; opacity: 0; transform: translateX(18%); }
+  .af.at-2:not(.at-4) .af-app { opacity: 1; transform: none; }
+  .af.at-4 .af-app { transform: scale(.92); }
+  .af-test { position: absolute; top: 1.4cqi; right: 6%; padding: .8cqi 2.6cqi; border-radius: 99px; background: #fef3c7; color: #7c2d12; font-size: .6em; font-weight: 700; opacity: 0; transition: opacity .3s; }
+  .af.at-2:not(.at-3) .af-test { opacity: 1; }
+  .af-b { position: relative; border: 1.5px solid transparent; border-radius: 3.4cqi; transition: background-color .5s, border-color .5s, box-shadow .5s, transform .5s cubic-bezier(.2, .9, .3, 1.25); transition-delay: calc(var(--i) * 90ms); }
+  .af-b::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--wire, none); opacity: 0; transition: opacity .35s; }
+  .af.at-2:not(.at-3) .af-b { border-style: dashed; border-color: #b4c3be; background-color: #e9eeec; box-shadow: none; }
+  .af.at-2:not(.at-3) .af-b::before { opacity: 1; }
+  .af-t { transition: opacity .4s; transition-delay: calc(.25s + var(--i, 0) * 110ms); }
+  .af:not(.at-3) .af-t { opacity: 0; transition-delay: 0s; }
+  .af-apphead { display: grid; padding: 1cqi 0; --wire: linear-gradient(#cdd7d4, #cdd7d4) 0 30% / 55% 34% no-repeat, linear-gradient(#d8e0dd, #d8e0dd) 0 85% / 35% 20% no-repeat; }
+  .af.at-2:not(.at-3) .af-apphead { border-color: transparent; background-color: transparent; }
+  .af-apphead span { display: grid; }
+  .af-apphead b { font-family: var(--font-display); font-weight: 800; font-size: 1.2em; letter-spacing: -.02em; }
+  .af-apphead small { color: #6b7b77; font-size: .7em; }
+  .af-class { display: flex; align-items: center; gap: 2cqi; padding: 3cqi 3.2cqi; background: #fff; box-shadow: 0 1px 2px rgb(15 31 28 / .08); --wire: linear-gradient(#cdd7d4, #cdd7d4) 8% 35% / 34% 16% no-repeat, linear-gradient(#d8e0dd, #d8e0dd) 8% 68% / 24% 12% no-repeat; }
+  .af-class-txt { display: grid; line-height: 1.25; }
+  .af-class-txt b { font-size: .78em; }
+  .af-class-txt small { color: #6b7b77; font-size: .66em; }
+  .af-res { margin-left: auto; padding: 1.7cqi 3.2cqi; border-radius: 99px; background: var(--color-brand); color: #fff; font-size: .64em; font-weight: 700; white-space: nowrap; transform-origin: right center; transition: background-color .4s, color .4s, transform .4s; }
+  .af.at-2:not(.at-3) .af-res { background: #c9d4d1; }
+  .af.at-2:not(.at-3) .af-res.is-first { transform: scale(1.18); background: #b3c2bd; }
+  .af.at-3 .af-res.is-first { background: var(--color-soft); color: var(--color-brand-strong); }
+  .af-res.is-full { background: #e6ecea; color: #4b5b57; }
+  .af-days { display: flex; justify-content: space-between; gap: 1.4cqi; --wire: linear-gradient(#d8e0dd, #d8e0dd) 50% 50% / 100% 60% no-repeat; }
+  .af.at-2:not(.at-3) .af-days { border-color: transparent; }
+  .af-days span { flex: 1; padding: 1.4cqi 0; border-radius: 2.4cqi; background: #fff; text-align: center; font-size: .62em; font-weight: 700; color: #6b7b77; }
+  .af-days .on { background: var(--color-ink); color: #fff; }
+  .af-swap { display: inline-grid; }
+  .af-swap > span { grid-area: 1 / 1; }
+  .af-swap .a { opacity: 0; }
+  .af-comment { position: absolute; z-index: 2; top: calc(100% + 1.5cqi); right: 0; width: 66%; margin: 0; padding: 2cqi 3cqi; border: 1px solid #f5d38a; border-radius: 3cqi 3cqi 1cqi 3cqi; background: #fffbeb; font-size: .66em; line-height: 1.3; box-shadow: 0 10px 20px -14px rgb(60 40 0 / .5); opacity: 0; transform: translateY(1em) scale(.9); transition: opacity .3s, transform .3s; }
+  .af-comment small { display: block; color: #92400e; font-size: .85em; font-weight: 700; }
+  .af.at-2:not(.at-3) .af-comment { opacity: 1; transform: none; }
+  .af-res { position: relative; }
+  .af-tap { position: absolute; left: 50%; top: 50%; margin: -6cqi 0 0 -6cqi; width: 12cqi; height: 12cqi; border-radius: 50%; background: rgb(15 31 28 / .22); opacity: 0; pointer-events: none; }
+  .af-tabs { margin: auto -6.5% 0; display: flex; justify-content: space-around; align-items: center; height: 11%; border-radius: 0; background: #fff; border-top-color: #e3e9e7; --wire: none; }
+  .af-tabs i { width: 6cqi; height: 6cqi; border-radius: 1.8cqi; background: #cbd5d2; }
+  .af-tabs i:first-child { background: var(--color-brand); }
+  .af.at-2:not(.at-3) .af-tabs i:first-child { background: #b3c2bd; }
+  .motion .af.at-2:not(.at-3) .af-test { transition-delay: .2s; }
+  .motion .af.at-2:not(.at-3) .af-comment { transition: opacity .3s .9s, transform .4s cubic-bezier(.2, .9, .3, 1.4) .9s; }
+  .motion .af.at-2:not(.at-3) .af-res.is-first { animation: af-grow .55s cubic-bezier(.2, .9, .3, 1.5) 2s both; }
+  .motion .af.at-3:not(.at-4) .af-tap { animation: af-tap .9s ease-out .7s both; }
+  .motion .af.at-3:not(.at-4) .af-res.is-first { animation: af-booked .35s ease 1.1s both; }
+  .motion .af.at-3:not(.at-4) .af-swap .a { animation: af-out .2s ease 1.1s both; }
+  .motion .af.at-3:not(.at-4) .af-swap .b { animation: af-pop-up .35s ease 1.2s both; }
+  @keyframes af-grow { from { transform: scale(1); } }
+  @keyframes af-tap { 0% { opacity: 0; transform: scale(.4); } 35% { opacity: 1; transform: scale(.9); } 100% { opacity: 0; transform: scale(1.7); } }
+  @keyframes af-booked { from { background: var(--color-brand); color: #fff; } }
+  @keyframes af-out { from { opacity: 1; } to { opacity: 0; } }
+
+  /* --- 5. Publicado: ecrã inicial --- */
+  .af-home { inset: 0; padding: 18% 8% 0; gap: 0; background: linear-gradient(165deg, #0b3b37, #0f766e 55%, #5fd4c4); }
+  .af:not(.at-4) .af-home { opacity: 0; transform: scale(1.08); }
+  .af-icons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6cqi 4.5cqi; }
+  .af-icon { position: relative; aspect-ratio: 1; border-radius: 24%; background: rgb(255 255 255 / .16); }
+  .af-icon-app { background: rgb(255 255 255 / .28); }
+  .af-icon-app small { position: absolute; top: 106%; left: 50%; translate: -50% 0; color: #fff; font-size: .55em; font-weight: 600; }
+  .af-logo { position: absolute; inset: 0; border-radius: 24%; background: linear-gradient(145deg, #14b8a6, var(--color-brand)); box-shadow: 0 6px 14px -8px rgb(0 0 0 / .5); }
+  .af-logo::after { content: ""; position: absolute; inset: 24%; border: 2.3cqi solid #fff; border-radius: 50%; }
+  .af-logo.sm { position: relative; flex: none; width: 9cqi; height: 9cqi; }
+  .af-logo.sm::after { border-width: 1.2cqi; }
+  .af-ring { position: absolute; inset: 24%; border-radius: 50%; background: conic-gradient(rgb(255 255 255 / .95) calc(var(--af-pct) * 1%), rgb(255 255 255 / .25) 0); opacity: 0; }
+  .af-stores { display: flex; justify-content: center; gap: 3cqi; margin-top: 9cqi; }
+  .af-dock { position: absolute; left: 5%; right: 5%; bottom: 3.5%; display: flex; justify-content: space-around; padding: 3.4cqi 4cqi; border-radius: 7cqi; background: rgb(255 255 255 / .2); }
+  .af-dock i { width: 14cqi; aspect-ratio: 1; border-radius: 24%; background: rgb(255 255 255 / .3); }
+  .af-stores span { padding: 1.8cqi 3.6cqi; border-radius: 99px; background: rgb(255 255 255 / .94); color: var(--color-ink); font-size: .64em; font-weight: 700; }
+  .af-notif { position: absolute; top: 8.5%; left: 4%; right: 4%; display: flex; align-items: center; gap: 2.6cqi; padding: 2.8cqi 3.2cqi; border-radius: 4.5cqi; background: rgb(255 255 255 / .97); color: var(--color-ink); font-size: .64em; line-height: 1.3; box-shadow: 0 14px 28px -14px rgb(0 0 0 / .55); }
+  .af-notif b { display: block; }
+  .motion .af.at-4 .af-ring { animation: af-install 1.4s ease-in-out .5s both; }
+  .motion .af.at-4 .af-icon-app .af-logo { animation: af-pop .5s cubic-bezier(.2, .9, .3, 1.6) 1.85s both; }
+  .motion .af.at-4 .af-stores span { animation: af-pop-up .4s ease both; animation-delay: calc(2.1s + var(--s, 0) * .15s); }
+  .motion .af.at-4 .af-stores span + span { --s: 1; }
+  .motion .af.at-4 .af-notif { animation: af-notif .55s cubic-bezier(.2, .9, .3, 1.2) 2.8s both; }
+  @keyframes af-install { 0% { --af-pct: 0; opacity: 1; } 88% { --af-pct: 100; opacity: 1; } 100% { --af-pct: 100; opacity: 0; } }
+  @keyframes af-notif { from { opacity: 0; transform: translateY(-140%); } }
+
+  /* Comuns. */
+  @keyframes af-pop-up { from { opacity: 0; transform: translateY(.8em) scale(.94); } }
+  @keyframes af-pop { from { opacity: 0; transform: scale(.4); } }
+}

@@ -1,21 +1,14 @@
 ---
 // Mini pré-visualização da interface para cada serviço (empresas fictícias).
 // Com movimento, cada uma faz a sua ação quando o cartão fica .is-playing (ver motion.css e initServices):
-// .sv-swap troca o texto .sv-a pelo .sv-b; --i escalona barras, notificações e vistos.
+// --i escalona barras, notificações e vistos.
 import Icon from '../ui/Icon.astro';
-// O website tem a sua própria pré-visualização em vídeo (WebsiteFilm.astro).
-interface Props { kind: 'app' | 'dashboard' | 'automation' | 'integration' | 'support' }
+// O website e as apps têm a sua própria pré-visualização em vídeo (WebsiteFilm.astro, AppFilm.astro).
+interface Props { kind: 'dashboard' | 'automation' | 'integration' | 'support' }
 const { kind } = Astro.props;
 ---
 <div class="sv-mini" aria-hidden="true">
   <div class="sv-inner">
-    {kind === 'app' && (
-      <div class="mk-mini-phone"><div class="mk-mini-scr">
-        <span class="mk-name">Ginásio Órbita</span>
-        <div class="mk-class"><b>Pilates · 18:00</b><span>Lugares disponíveis</span><em class="sv-swap"><span class="sv-a">Reservar</span><span class="sv-b">Reservado ✓</span></em></div>
-        <div class="mk-class"><b>Treino funcional · 19:00</b><em class="done">Reservado ✓</em></div>
-      </div></div>
-    )}
     {kind === 'dashboard' && (
       <div>
         <div class="mk-tiles"><div><b>7</b><span>Reparações em curso</span></div><div><b>3</b><span>Prontas a entregar</span></div></div>

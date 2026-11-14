@@ -1,9 +1,10 @@
 ---
+import FilmControls from './FilmControls.astro';
 // "Vídeo" do painel Websites: o site de uma padaria fictícia passa de fraco a um site que recebe encomendas,
 // em 5 etapas dentro da mesma janela de browser. O estado é data-step (0 a 4) e as classes at-1..at-4
-// (cumulativas) no .wf; o avanço, a pausa e as etapas são geridos por initWebsiteFilm em scripts/motion.ts.
+// (cumulativas) no .wf; o avanço, a pausa e as etapas são geridos por initFilms em scripts/motion.ts.
 // Sem JavaScript ou com movimento reduzido, mostra o resultado final e os botões das etapas mudam sem animação.
-// Estilos: website-film.css. Sem números de resultados (seriam estatísticas inventadas).
+// Estilos: website-film.css (controlos comuns em films.css). Sem números de resultados (seriam estatísticas inventadas).
 const chapters = [
   { label: 'Antes', caption: 'O site atual: difícil de ler, sem contacto à vista e sem forma de encomendar.' },
   { label: 'Diagnóstico', caption: 'Marcamos o que está a afastar clientes.' },
@@ -18,7 +19,7 @@ const products = [
   ['Croissant', '1,30 €'],
 ];
 ---
-<div class="wf at-1 at-2 at-3 at-4" data-wf data-step={last} data-durations="2600,3400,2700,3100,4200">
+<div class="film wf at-1 at-2 at-3 at-4" data-film data-step={last} data-durations="2600,3400,2700,3100,4200">
   <div class="wf-screen" aria-hidden="true">
     <div class="wf-bar">
       <span class="wf-dots"><i></i><i></i><i></i></span>
@@ -89,22 +90,5 @@ const products = [
     </div>
   </div>
 
-  <div class="wf-controls">
-    <button type="button" class="wf-play" data-wf-play aria-label="Reproduzir vídeo">
-      <svg class="wf-i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" /></svg>
-      <svg class="wf-i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
-      <svg class="wf-i-replay" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /><path d="M4 3v5h5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
-    </button>
-    <div class="wf-chapters" role="group" aria-label="Etapas do vídeo">
-      {chapters.map((c, n) => (
-        <button type="button" class="wf-ch" data-wf-ch={n} aria-label={`Etapa ${n + 1} de ${chapters.length}: ${c.label}`} aria-current={n === last ? 'step' : undefined}>
-          <span class="wf-track"><i class="wf-fill"></i></span>
-          <span class="wf-ch-label" aria-hidden="true">{c.label}</span>
-        </button>
-      ))}
-    </div>
-  </div>
-  <p class="wf-caption" data-wf-caption aria-live="off">
-    {chapters.map((c, n) => <span data-wf-cap={n} hidden={n !== last}><b>{c.label}.</b> {c.caption}</span>)}
-  </p>
+  <FilmControls chapters={chapters} />
 </div>

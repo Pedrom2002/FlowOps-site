@@ -3,7 +3,7 @@
    se vê em cada etapa. As transições só existem com movimento (.motion); sem ele, as etapas mudam de imediato.
    A padaria tem a sua própria paleta (castanhos quentes): é o site de um cliente, não o nosso. */
 @layer components {
-  .wf { container: wf / inline-size; display: grid; gap: 10px; width: 100%; max-width: 480px; }
+  .wf { max-width: 480px; }
 
   /* --- Janela do browser --- */
   .wf-screen { position: relative; container-type: inline-size; overflow: hidden; border: 1px solid var(--color-line); border-radius: 12px; background: #fff; box-shadow: 0 26px 50px -30px rgb(15 31 28 / .5); }
@@ -109,29 +109,4 @@
   @keyframes wf-press { 45% { transform: scale(.9); box-shadow: 0 0 0 .6em rgb(107 58 30 / .16); } }
   @keyframes wf-toast { from { opacity: 0; transform: translateY(-.8em) scale(.94); } }
   @keyframes wf-pop { from { transform: scale(0); } }
-  .wf.is-paused * { animation-play-state: paused !important; }
-
-  /* Sem movimento (reduzido, ou sem JavaScript): as etapas mudam sem transições. */
-  :root:not(.motion) .wf * { transition: none !important; }
-
-  /* --- Controlos de vídeo --- */
-  .wf-controls { display: flex; align-items: center; gap: 8px; }
-  .wf-play { flex: none; display: none; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--color-ink); color: #fff; cursor: pointer; transition: background-color .2s; }
-  .motion .wf-play { display: grid; }
-  .wf-play:hover { background: var(--color-brand-strong); }
-  .wf-play svg { width: 18px; height: 18px; fill: currentColor; }
-  .wf-play svg:not(.wf-i-play) { display: none; }
-  .wf[data-state="playing"] .wf-i-play, .wf[data-state="ended"] .wf-i-play { display: none; }
-  .wf[data-state="playing"] .wf-i-pause, .wf[data-state="ended"] .wf-i-replay { display: block; }
-  .wf-chapters { flex: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
-  .wf-ch { display: grid; align-content: center; gap: 5px; min-height: 44px; text-align: left; cursor: pointer; }
-  .wf-track { height: 4px; border-radius: 99px; background: #cde0da; overflow: hidden; transition: background-color .2s; }
-  .wf-fill { display: block; width: calc(var(--p, 1) * 100%); height: 100%; border-radius: inherit; background: var(--color-brand); }
-  .wf-ch-label { overflow: hidden; color: var(--color-muted); font-size: .72rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; transition: color .2s; }
-  .wf-ch[aria-current="step"] .wf-ch-label { color: var(--color-ink); }
-  .wf-ch:hover .wf-track { background: #b5d2ca; }
-  .wf-ch:hover .wf-ch-label { color: var(--color-ink); }
-  @container wf (max-width: 360px) { .wf-ch-label { display: none; } }
-  .wf-caption { min-height: 2.8em; color: var(--color-ink); font-size: .92rem; line-height: 1.45; }
-  .wf-caption b { color: var(--color-brand-strong); }
 }
