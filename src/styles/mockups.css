@@ -215,6 +215,31 @@
   .hp-row.log { gap: 9px; }
   .hp-row.log time { color: #94a39f; font-variant-numeric: tabular-nums; }
 
+  /* Interações no ecrã (ver initPhone em scripts/motion.ts): só rato e toque, por isso sem foco de teclado.
+     touch-action deixa a página fazer scroll na vertical e reserva o gesto horizontal para mudar de exemplo. */
+  .hero-phone .mk-screen { touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+  .hero-phone [data-hp] { cursor: pointer; transition: background-color .15s, color .15s, transform .12s; }
+  .hero-phone [data-hp]:active { transform: scale(.97); }
+  .hero-phone .hp-row[data-hp]:active { transform: none; background: #e9efed; }
+  .hero-phone .hp-group .hp-row[data-hp]:first-child { border-radius: 12px 12px 0 0; }
+  .hero-phone .hp-group .hp-row[data-hp]:last-child { border-radius: 0 0 12px 12px; }
+  @media (hover: hover) {
+    .hero-phone .hp-row[data-hp]:hover { background: #f6f9f8; }
+    .hero-phone .hp-web .hp-row[data-hp]:hover { background: #eaf0ee; }
+    .hero-phone .hp-cal-grid [data-hp]:not(.on):hover, .hero-phone .hp-times [data-hp]:not(.on, .off):hover { background: #dcefeb; }
+    .hero-phone .hp-tabs [data-hp]:not(.on):hover { color: #5d6e6a; }
+  }
+  .hero-phone [data-hp="bars"] { cursor: pointer; }
+  .hp-bars i { transition: background-color .2s; }
+  .hp-bars i.sel { background: var(--color-ink); }
+  .hp-times .off { color: #c3cdca; background: #f7f9f8; cursor: default; }
+  .hp-btn.is-done { background: var(--color-ink); }
+  .hp-row.log.is-new { animation: hp-log-in .35s ease both; }
+  @keyframes hp-log-in { from { opacity: 0; transform: translateY(-4px); } }
+  .hp-toast { position: absolute; z-index: 3; left: 12px; right: 12px; top: 40px; padding: 9px 12px; border-radius: 12px; background: var(--color-ink); color: #fff; font-weight: 600; text-align: center; box-shadow: 0 10px 24px -12px rgb(0 0 0 / .5); opacity: 0; transform: translateY(-8px); pointer-events: none; transition: opacity .25s ease, transform .3s ease; }
+  .hp-toast.is-on { opacity: 1; transform: none; }
+  .hero-hint { max-width: 30ch; text-align: center; font-size: 0.8rem; color: var(--color-on-dark); }
+
   /* --- serviços --- */
   .sv-mini { position: relative; overflow: hidden; height: 172px; margin: -4px -4px 8px; padding: 14px; border-radius: 10px; background: var(--color-soft); color: var(--color-ink); font-size: 0.72rem; line-height: 1.35; }
   .sv-inner { transition: transform .35s ease; }
@@ -260,7 +285,8 @@
   @media (max-width: 700px) { .wm-f { right: -45%; height: 90%; } }
 
   @media (prefers-reduced-motion: reduce) {
-    .sv-inner, .cs-device, .cs-scroll, .cs-toast, .cs-pick, .cs-pick-btn, .lift { transition: none; }
+    .sv-inner, .cs-device, .cs-scroll, .cs-toast, .cs-pick, .cs-pick-btn, .lift, .hp-toast, .hero-phone [data-hp] { transition: none; }
+    .hp-row.log.is-new { animation: none; }
     .case-card .cs-device, .case-card .cs-scroll, .lift:hover, .lift:active, .sv-card .sv-inner { transform: none !important; }
   }
 }

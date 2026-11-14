@@ -36,6 +36,13 @@
   .motion .hp-row:nth-child(3) .hp-switch { --k: 2; }
   @keyframes hp-sw { from { background: #dfe6e4; } }
   @keyframes hp-knob { from { transform: none; } }
+  /* Interruptores que a pessoa mexeu: mudam logo, sem a animação de entrada. */
+  .motion .mk-scene.is-active .hp-switch.is-touched,
+  .motion .mk-scene.is-active .hp-switch.is-touched::after { animation: none; }
+  /* Inclinação a seguir o rato (scripts/motion.ts, initTilt): só depois da entrada, que fixa o transform. */
+  @media (hover: hover) and (pointer: fine) {
+    .motion .hero-phone.is-ready { animation: none; transform: perspective(1100px) rotateX(var(--ry, 0deg)) rotateY(var(--rx, 0deg)); transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
+  }
   .hero-pause { display: none; }
   .motion .hero-pause { display: grid; }
 

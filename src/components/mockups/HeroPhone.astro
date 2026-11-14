@@ -2,6 +2,8 @@
 // Telemóvel do hero com 4 exemplos (website, marcações, gestão, automatizações), em ciclo (ver motion.css).
 // Estilo de app nativa: título grande, listas agrupadas com separadores, um só acento. Sem marcas
 // nem pessoas inventadas: cada exemplo é identificado pelo tipo de negócio. Estilos: hp-* em mockups.css.
+// Os elementos com data-hp respondem ao toque e ao rato (ver initPhone em scripts/motion.ts). São um extra:
+// o ecrã fica fora da árvore de acessibilidade e o teclado usa os controlos por baixo do telemóvel.
 import HeroF from './HeroF.astro';
 import BrandF from '../ui/BrandF.astro';
 
@@ -35,6 +37,7 @@ const active: Record<string, number> = { booking: 1, dashboard: 0, automation: 0
 // Calendário: novembro de 2026, segunda e terça semanas (hoje é dia 11).
 const weeks = [[2, 3, 4, 5, 6, 7, 8], [9, 10, 11, 12, 13, 14, 15]];
 const bars = [38, 52, 30, 0, 0, 0, 0]; // faturação por dia, seg a dom (só até hoje)
+const revenue = [1050, 1440, 690, 0, 0, 0, 0]; // em euros, soma 3 180 € (mostrado ao tocar numa barra)
 ---
 <div class="hero-stage">
   <HeroF />
@@ -49,11 +52,11 @@ const bars = [38, 52, 30, 0, 0, 0, 0]; // faturação por dia, seg a dom (só at
           <div class="hp-nav"><b>Remodelações</b><svg viewBox="0 0 24 24" set:html={I.menu} /></div>
           <p class="hp-sub">Cozinhas e casas de banho em Lisboa. Visita e orçamento sem compromisso; respondemos no mesmo dia útil.</p>
           <div class="hp-group">
-            <div class="hp-row"><span>Tipo de obra</span><em>Cozinha</em><svg viewBox="0 0 24 24" set:html={I.chev} /></div>
-            <div class="hp-row"><span>Área aproximada</span><em>12 m²</em><svg viewBox="0 0 24 24" set:html={I.chev} /></div>
-            <div class="hp-row"><span>Quando</span><em>Próximo mês</em><svg viewBox="0 0 24 24" set:html={I.chev} /></div>
+            <div class="hp-row" data-hp="cycle" data-options="Cozinha|Casa de banho|Remodelação total"><span>Tipo de obra</span><em>Cozinha</em><svg viewBox="0 0 24 24" set:html={I.chev} /></div>
+            <div class="hp-row" data-hp="cycle" data-options="12 m²|20 m²|35 m²|8 m²"><span>Área aproximada</span><em>12 m²</em><svg viewBox="0 0 24 24" set:html={I.chev} /></div>
+            <div class="hp-row" data-hp="cycle" data-options="Próximo mês|Daqui a 3 meses|Este mês"><span>Quando</span><em>Próximo mês</em><svg viewBox="0 0 24 24" set:html={I.chev} /></div>
           </div>
-          <span class="hp-btn">Pedir orçamento</span>
+          <span class="hp-btn" data-hp="quote">Pedir orçamento</span>
           <p class="hp-label">Obras recentes</p>
           <div class="hp-group">
             <div class="hp-row"><span>Cozinha em Alvalade</span><em>3 semanas</em></div>
@@ -77,55 +80,61 @@ const bars = [38, 52, 30, 0, 0, 0, 0]; // faturação por dia, seg a dom (só at
           <div class="hp-cal-head"><b>novembro 2026</b><span><svg viewBox="0 0 24 24" set:html={I.back} /><svg viewBox="0 0 24 24" set:html={I.fwd} /></span></div>
           <div class="hp-cal-grid">
             {['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map((d) => <small>{d}</small>)}
-            {weeks.flat().map((d) => <span class:list={[d <= 10 && 'past', d === 12 && 'on', (d === 14 || d === 15 || d === 8 || d === 7) && 'off']}>{d}</span>)}
+            {weeks.flat().map((d, n) => {
+              const free = d > 10 && d < 14;
+              return <span class:list={[d <= 10 && 'past', d === 12 && 'on', (d === 14 || d === 15 || d === 8 || d === 7) && 'off']} data-hp={free ? 'day' : undefined} data-wd={free ? n % 7 : undefined}>{d}</span>;
+            })}
           </div>
         </div>
-        <p class="hp-label">Quinta-feira, 12</p>
-        <div class="hp-times"><span>09:00</span><span>10:30</span><span class="on">14:00</span><span>16:30</span></div>
-        <span class="hp-btn">Confirmar quinta às 14:00</span>
+        <p class="hp-label" data-hp-daylabel>Quinta-feira, 12</p>
+        <div class="hp-times"><span data-hp="time">09:00</span><span data-hp="time">10:30</span><span class="on" data-hp="time">14:00</span><span data-hp="time">16:30</span></div>
+        <span class="hp-btn" data-hp="book">Confirmar quinta às 14:00</span>
         <p class="hp-note">Recebe um lembrete por SMS na véspera. Pode remarcar até 24 horas antes.</p>
-        <nav class="hp-tabs">{tabs.booking.map(([k, l], n) => <span class:list={[n === active.booking && 'on']}><svg viewBox="0 0 24 24" set:html={I[k]} />{l}</span>)}</nav>
+        <nav class="hp-tabs">{tabs.booking.map(([k, l], n) => <span class:list={[n === active.booking && 'on']} data-hp="tab"><svg viewBox="0 0 24 24" set:html={I[k]} />{l}</span>)}</nav>
       </div>
 
       <!-- 3. Gestão -->
       <div class="mk-scene hp-scene" data-scene="dashboard">
         <div class="hp-title-row"><p class="hp-title">Oficina</p><small>quarta, 11 nov</small></div>
         <div class="hp-stats">
-          <div><b>7</b><span>em curso</span></div>
-          <div><b>3</b><span>prontas</span></div>
-          <div><b>2</b><span>à espera de peças</span></div>
+          <div><b data-stat="run">7</b><span>em curso</span></div>
+          <div><b data-stat="ok">3</b><span>prontas</span></div>
+          <div><b data-stat="wait">2</b><span>à espera de peças</span></div>
         </div>
         <div class="hp-group hp-week">
-          <div class="hp-week-head"><span>Faturação desta semana</span><b>3 180 €</b><small>12% acima da semana passada</small></div>
-          <div class="hp-bars">{bars.map((h, n) => <i class:list={[n === 2 && 'today', !h && 'empty']} style={`--h:${h || 6}px`}></i>)}</div>
+          <div class="hp-week-head" data-hp-week><span>Faturação desta semana</span><b>3 180 €</b><small>12% acima da semana passada</small></div>
+          <div class="hp-bars" data-hp="bars" data-values={revenue.join(',')}>{bars.map((h, n) => <i class:list={[n === 2 && 'today', !h && 'empty']} style={`--h:${h || 6}px`}></i>)}</div>
           <div class="hp-bars-axis">{['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map((d) => <span>{d}</span>)}</div>
         </div>
         <p class="hp-label">Viaturas</p>
         <div class="hp-group">
-          <div class="hp-row two"><span><b>45-QX-12</b><small>Revisão dos 60 000 km</small></span><em class="ok">Pronta</em></div>
-          <div class="hp-row two"><span><b>AV-08-LM</b><small>Travões</small></span><em>Em curso</em></div>
-          <div class="hp-row two"><span><b>12-RT-90</b><small>Embraiagem</small></span><em class="wait">Peças</em></div>
+          <div class="hp-row two" data-hp="car"><span><b>45-QX-12</b><small>Revisão dos 60 000 km</small></span><em class="ok">Pronta</em></div>
+          <div class="hp-row two" data-hp="car"><span><b>AV-08-LM</b><small>Travões</small></span><em>Em curso</em></div>
+          <div class="hp-row two" data-hp="car"><span><b>12-RT-90</b><small>Embraiagem</small></span><em class="wait">Peças</em></div>
         </div>
-        <nav class="hp-tabs">{tabs.dashboard.map(([k, l], n) => <span class:list={[n === active.dashboard && 'on']}><svg viewBox="0 0 24 24" set:html={I[k]} />{l}</span>)}</nav>
+        <nav class="hp-tabs">{tabs.dashboard.map(([k, l], n) => <span class:list={[n === active.dashboard && 'on']} data-hp="tab"><svg viewBox="0 0 24 24" set:html={I[k]} />{l}</span>)}</nav>
       </div>
 
       <!-- 4. Automatizações -->
       <div class="mk-scene hp-scene" data-scene="automation">
         <p class="hp-title">Automações</p>
         <div class="hp-group">
-          <div class="hp-row toggle"><span>Avisar o cliente por SMS quando o carro fica pronto</span><i class="hp-switch on"></i></div>
-          <div class="hp-row toggle"><span>Enviar a fatura por email ao fechar a reparação</span><i class="hp-switch on"></i></div>
-          <div class="hp-row toggle"><span>Lembrar a revisão passados 12 meses</span><i class="hp-switch on"></i></div>
-          <div class="hp-row toggle"><span>Resumo semanal para a gerência</span><i class="hp-switch"></i></div>
+          <div class="hp-row toggle" data-hp="switch" data-name="Aviso por SMS"><span>Avisar o cliente por SMS quando o carro fica pronto</span><i class="hp-switch on"></i></div>
+          <div class="hp-row toggle" data-hp="switch" data-name="Envio de faturas"><span>Enviar a fatura por email ao fechar a reparação</span><i class="hp-switch on"></i></div>
+          <div class="hp-row toggle" data-hp="switch" data-name="Lembrete de revisão"><span>Lembrar a revisão passados 12 meses</span><i class="hp-switch on"></i></div>
+          <div class="hp-row toggle" data-hp="switch" data-name="Resumo semanal"><span>Resumo semanal para a gerência</span><i class="hp-switch"></i></div>
         </div>
         <p class="hp-label">Hoje</p>
-        <div class="hp-group">
+        <div class="hp-group" data-hp-log>
           <div class="hp-row log"><time>09:12</time><span>SMS enviado: 45-QX-12 pronto</span></div>
           <div class="hp-row log"><time>09:12</time><span>Fatura FT 2026/184 enviada</span></div>
           <div class="hp-row log"><time>08:30</time><span>6 lembretes de revisão enviados</span></div>
         </div>
-        <nav class="hp-tabs">{tabs.automation.map(([k, l], n) => <span class:list={[n === active.automation && 'on']}><svg viewBox="0 0 24 24" set:html={I[k]} />{l}</span>)}</nav>
+        <nav class="hp-tabs">{tabs.automation.map(([k, l], n) => <span class:list={[n === active.automation && 'on']} data-hp="tab"><svg viewBox="0 0 24 24" set:html={I[k]} />{l}</span>)}</nav>
       </div>
+
+      <!-- Confirmações das interações (ver initPhone em scripts/motion.ts). -->
+      <div class="hp-toast" data-hp-toast></div>
 
       <!-- Ecrã de abertura (só com animação; ver motion.css). -->
       <div class="hp-splash">
@@ -142,6 +151,7 @@ const bars = [38, 52, 30, 0, 0, 0, 0]; // faturação por dia, seg a dom (só at
   </div>
   <!-- Controlos: escolher o exemplo, anterior/seguinte e pausa (ver initHero em scripts/motion.ts). -->
   <div class="hero-controls">
+    <p class="hero-hint" aria-hidden="true">Toque no ecrã para experimentar ou deslize para mudar de exemplo.</p>
     <div class="hero-steps" role="group" aria-label="Exemplos no telemóvel">
       {['Website', 'Marcações', 'Gestão', 'Automatização'].map((l, n) => (
         <button type="button" data-step class:list={[n === 0 && 'is-active']} aria-current={n === 0 ? 'true' : 'false'}>{l}</button>
