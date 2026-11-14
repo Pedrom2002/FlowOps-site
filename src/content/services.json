@@ -6,10 +6,12 @@
     "text": "Sites profissionais e rápidos, pensados para serem encontrados e gerarem contactos.",
     "example": "website de uma padaria com encomendas para o dia seguinte.",
     "preview": "website",
-    "solves": {
-      "presenca-online": "Um site rápido e claro, com o pedido de contacto à vista em cada página.",
-      "pedidos-perdidos": "Pedidos e marcações online que chegam organizados, em vez de chamadas perdidas."
-    }
+    "about": "um website",
+    "steps": [
+      "Percebemos o que o site tem de fazer: receber pedidos, mostrar trabalhos ou marcar visitas.",
+      "Mostramos uma versão para rever antes de publicar.",
+      "Publicamos com o domínio e o email configurados e preparado para aparecer nas pesquisas."
+    ]
   },
   {
     "id": "apps",
@@ -18,9 +20,12 @@
     "text": "Aplicações Android e iOS, a área em que temos formação específica.",
     "example": "app para os sócios de um ginásio reservarem aulas.",
     "preview": "app",
-    "solves": {
-      "pedidos-perdidos": "Os clientes reservam e fazem pedidos sozinhos, mesmo fora do horário."
-    }
+    "about": "uma app",
+    "steps": [
+      "Definimos o essencial da primeira versão.",
+      "Experimenta a app no seu telemóvel durante o desenvolvimento.",
+      "Publicamos na App Store e no Google Play e tratamos das atualizações."
+    ]
   },
   {
     "id": "sistemas-de-gestao",
@@ -29,10 +34,12 @@
     "text": "Clientes, pedidos, stock e agenda num só sistema, simples de usar.",
     "example": "painel de reparações da Oficina Nortecar.",
     "preview": "dashboard",
-    "solves": {
-      "tarefas-manuais": "Fichas, estados e documentos num só sítio, sem copiar dados à mão.",
-      "informacao-espalhada": "Clientes, pedidos e stock no mesmo sistema, que toda a equipa consulta."
-    }
+    "about": "um sistema de gestão",
+    "steps": [
+      "Vemos como o trabalho é feito hoje (papel, Excel, mensagens).",
+      "Construímos por partes, a começar pelo que mais tempo poupa.",
+      "Importamos os dados que já existem e mostramos à equipa como usar."
+    ]
   },
   {
     "id": "automatizacoes",
@@ -41,10 +48,12 @@
     "text": "Lembretes, emails, faturas e relatórios que se fazem sozinhos.",
     "example": "aviso automático ao cliente quando a encomenda está pronta.",
     "preview": "automation",
-    "solves": {
-      "tarefas-manuais": "Faturas, lembretes e relatórios enviados sem ninguém ter de se lembrar.",
-      "pedidos-perdidos": "Cada pedido recebe resposta automática e fica registado para seguimento."
-    }
+    "about": "automatizações",
+    "steps": [
+      "Listamos as tarefas que se repetem.",
+      "Automatizamos uma de cada vez, e no início pode confirmar antes de cada envio.",
+      "Cada envio fica registado e, se algo falhar, é avisado."
+    ]
   },
   {
     "id": "integracoes",
@@ -53,10 +62,12 @@
     "text": "Ligamos as ferramentas que o negócio já utiliza.",
     "example": "marcações do website da Clínica Vértice a entrar diretamente na agenda.",
     "preview": "integration",
-    "solves": {
-      "tarefas-manuais": "Os dados passam de uma ferramenta para a outra sem serem escritos duas vezes.",
-      "informacao-espalhada": "Ligamos o que já usa (email, agenda, faturação) para a informação não se perder."
-    }
+    "about": "integrações",
+    "steps": [
+      "Vemos que ferramentas já usa e que informação passa de umas para as outras.",
+      "Ligamo-las pelas vias oficiais de cada serviço.",
+      "Acompanhamos as primeiras semanas para garantir que nada se perde."
+    ]
   },
   {
     "id": "manutencao-e-suporte",
@@ -65,8 +76,11 @@
     "text": "Alojamento, atualizações de segurança e melhorias contínuas.",
     "example": "correções e pequenas alterações tratadas por nós.",
     "preview": "support",
-    "solves": {
-      "presenca-online": "O site fica atualizado, seguro e no ar, com as alterações tratadas por nós."
-    }
+    "about": "manutenção e suporte",
+    "steps": [
+      "Tratamos do alojamento, das cópias de segurança e das atualizações.",
+      "Os pedidos de alteração têm resposta em até 1 dia útil.",
+      "As melhorias têm preço acordado antes de começarmos."
+    ]
   }
 ]

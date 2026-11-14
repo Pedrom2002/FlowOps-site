@@ -462,82 +462,76 @@ function initProblems() {
   io.observe(stage);
 }
 
-// 5. O que fazemos: escolher um problema mostra só os serviços que o resolvem, com a frase "porquê", e um link
-// para falar sobre esse problema. Funciona sem movimento; com movimento, as pré-visualizações fazem a sua ação
-// (classe .is-playing, ver motion.css) quando o cartão entra no ecrã, aparece no filtro ou recebe o rato/toque.
+// 5. O que fazemos: separadores (padrão ARIA tabs). Clicar num serviço, ou usar as setas/Home/End, abre o
+// painel desse serviço. Com movimento, a pré-visualização do painel faz a sua ação (classe .is-playing, ver
+// motion.css) quando o painel abre, quando a secção aparece no ecrã e quando recebe o rato ou um toque.
 function initServices() {
   const root = document.querySelector<HTMLElement>('[data-sv]');
   if (!root) return;
-  const chips = [...root.querySelectorAll<HTMLButtonElement>('[data-sv-filter]')];
-  const cards = [...root.querySelectorAll<HTMLElement>('.sv-card')];
-  const status = root.querySelector<HTMLElement>('[data-sv-status]');
-  const wa = root.querySelector<HTMLAnchorElement>('[data-sv-link]');
+  const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-sv-tab]')];
+  const panels = [...root.querySelectorAll<HTMLElement>('[data-sv-panel]')];
   const playedAt = new WeakMap<HTMLElement, number>();
-  let io: IntersectionObserver | undefined;
+  let current = Math.max(0, tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true'));
 
-  const play = (card: HTMLElement, force = false) => {
+  const play = (panel: HTMLElement, force = false) => {
     if (!motion) return;
-    const last = playedAt.get(card) ?? -Infinity;
+    const last = playedAt.get(panel) ?? -Infinity;
     if (!force && performance.now() - last < 2500) return; // não repete enquanto ainda está a tocar
-    playedAt.set(card, performance.now());
-    card.classList.remove('is-playing');
-    void card.offsetWidth;
-    card.classList.add('is-playing');
+    playedAt.set(panel, performance.now());
+    panel.classList.remove('is-playing');
+    void panel.offsetWidth;
+    panel.classList.add('is-playing');
   };
 
-  const select = (chip: HTMLButtonElement) => {
-    const id = chip.dataset.svFilter ?? '';
-    chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
-    let shown = 0;
-    cards.forEach((card) => {
-      const match = !id || (card.dataset.solves ?? '').split(' ').includes(id);
-      const wasHidden = card.hidden;
-      card.hidden = !match;
-      card.querySelectorAll<HTMLElement>('[data-why]').forEach((w) => (w.hidden = w.dataset.why !== id));
-      const example = card.querySelector<HTMLElement>('[data-sv-example]');
-      if (example) example.hidden = !!id;
-      if (!match) return;
-      shown++;
-      card.classList.add('in'); // o aparecimento por scroll já não se aplica a um cartão escolhido
-      if (wasHidden && motion) {
-        card.classList.remove('sv-enter');
-        void card.offsetWidth;
-        card.classList.add('sv-enter');
-      }
-      io?.unobserve(card); // já tocou; não repete ao entrar no ecrã logo a seguir
-      play(card, true);
+  const select = (i: number, focus = false) => {
+    const next = (i + tabs.length) % tabs.length;
+    const tab = tabs[next];
+    const panel = panels[next];
+    if (!tab || !panel) return;
+    tabs.forEach((t, n) => {
+      t.setAttribute('aria-selected', String(n === next));
+      t.tabIndex = n === next ? 0 : -1;
     });
-    if (status) {
-      status.textContent = '';
-      if (id) {
-        const b = document.createElement('b');
-        b.textContent = chip.dataset.svShort ?? '';
-        status.append('Para ', b, shown === 1 ? ', este serviço:' : `, estes ${shown} serviços:`);
-      } else status.textContent = `Todos os ${cards.length} serviços`;
+    panels.forEach((p, n) => (p.hidden = n !== next));
+    if (focus) tab.focus();
+    // Em ecrãs estreitos a barra tem scroll horizontal: mantém o separador escolhido à vista.
+    const bar = tab.parentElement;
+    if (bar && bar.scrollWidth > bar.clientWidth) {
+      bar.scrollTo({ left: tab.offsetLeft - (bar.clientWidth - tab.offsetWidth) / 2, behavior: motion ? 'smooth' : 'auto' });
     }
-    if (wa) {
-      wa.hidden = !id;
-      if (chip.dataset.svWa) wa.href = chip.dataset.svWa;
+    if (next !== current && motion) {
+      panel.classList.remove('sv-enter');
+      void panel.offsetWidth;
+      panel.classList.add('sv-enter');
     }
+    current = next;
+    play(panel, true);
   };
-  chips.forEach((c) => c.addEventListener('click', () => select(c)));
+
+  tabs.forEach((t, n) => t.addEventListener('click', () => select(n)));
+  tabs[0]?.parentElement?.addEventListener('keydown', (e) => {
+    const keys: Record<string, number> = { ArrowRight: current + 1, ArrowLeft: current - 1, Home: 0, End: tabs.length - 1 };
+    if (!(e.key in keys)) return;
+    e.preventDefault();
+    select(keys[e.key]!, true);
+  });
 
   if (!motion) return;
-  cards.forEach((card) => {
-    card.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && play(card));
-    card.addEventListener('click', () => play(card));
+  panels.forEach((p) => {
+    p.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && play(p));
+    p.addEventListener('click', (e) => !(e.target as Element).closest('a') && play(p));
   });
-  io = new IntersectionObserver(
-    (entries) =>
-      entries
-        .filter((e) => e.isIntersecting)
-        .forEach((e, i) => {
-          io?.unobserve(e.target);
-          window.setTimeout(() => play(e.target as HTMLElement), i * 150);
-        }),
-    { threshold: 0.5 },
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry?.isIntersecting) return;
+      io.disconnect();
+      const panel = panels[current];
+      if (panel) play(panel);
+    },
+    { threshold: 0.4 },
   );
-  cards.forEach((c) => io.observe(c));
+  const first = panels[current];
+  if (first) io.observe(first);
 }
 
 initReveal();

@@ -6,55 +6,46 @@ import { getSection, getOrdered, getSettings, whatsappHref, isExternal } from '.
 
 const head = await getSection('services');
 const items = await getOrdered('services');
-const problems = await getOrdered('problems');
 const s = await getSettings();
-
-// Os problemas são os mesmos da secção anterior; cada serviço indica quais resolve (services.json, "solves").
-const problemIds = new Set(problems.map((p) => p.id));
-for (const { id, data } of items) {
-  for (const key of Object.keys(data.solves)) {
-    if (!problemIds.has(key)) throw new Error(`services.json: "${id}" refere o problema "${key}", que não existe em problems.json.`);
-  }
-}
-const count = (pid: string) => items.filter(({ data }) => pid in data.solves).length;
-const waLabel = s.contacts.whatsapp ? 'Falar sobre isto no WhatsApp' : 'Falar connosco sobre isto';
-const waFor = (short: string) =>
-  whatsappHref(s.contacts.whatsapp, `Olá! Vi o site da ${s.name}. O que mais nos trava é: ${short.toLowerCase()}. Podemos falar?`);
-const firstWa = waFor(problems[0]?.data.short ?? '');
+const contact = (about: string) => whatsappHref(s.contacts.whatsapp, `Olá! Vi o site da ${s.name} e gostava de falar sobre ${about}.`);
 ---
 <section class="section bg-soft" id="servicos" aria-labelledby="servicos-title" data-sv>
   <div class="container-site">
     <SectionHead id="servicos-title" label={head.label} title={head.title} lead={head.lead} />
 
-    <!-- Filtro: escolher um problema mostra só os serviços que o resolvem e porquê (initServices em scripts/motion.ts). -->
-    <div class="reveal sv-filter">
-      <p id="sv-filter-label" class="sv-filter-q">O que mais o trava hoje?</p>
-      <div class="sv-chips" role="group" aria-labelledby="sv-filter-label">
-        <button type="button" class="sv-chip" data-sv-filter="" aria-pressed="true">Todos os serviços</button>
-        {problems.map(({ id, data }) => (
-          <button type="button" class="sv-chip" data-sv-filter={id} data-sv-short={data.short} data-sv-wa={waFor(data.short)} aria-pressed="false">
-            {data.short}<span class="sv-chip-n" aria-hidden="true">{count(id)}</span>
+    <!-- Separadores: um por serviço; cada um abre o seu painel (initServices em scripts/motion.ts).
+         Sem JavaScript, a barra some e os painéis aparecem todos, uns por baixo dos outros. -->
+    <div class="reveal">
+      <div class="sv-tabs" role="tablist" aria-label="Serviços">
+        {items.map(({ id, data }, n) => (
+          <button type="button" role="tab" class="sv-tab" id={`sv-tab-${id}`} aria-controls={`sv-panel-${id}`} aria-selected={n === 0 ? 'true' : 'false'} tabindex={n === 0 ? 0 : -1} data-sv-tab>
+            {data.title}
           </button>
         ))}
       </div>
-      <div class="sv-result">
-        <p class="sv-status" aria-live="polite" data-sv-status>Todos os {items.length} serviços</p>
-        <a href={firstWa} class="sv-wa" data-sv-link hidden {...(isExternal(firstWa) ? { target: '_blank', rel: 'noopener' } : {})}><WhatsAppIcon />{waLabel}</a>
-      </div>
-    </div>
 
-    <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" data-sv-list>
-      {items.map(({ data }) => (
-        <li class="reveal sv-card lift grid content-start gap-2.5 overflow-hidden rounded-[14px] border border-line bg-white p-6" data-solves={Object.keys(data.solves).join(' ')}>
-          <ServicePreview kind={data.preview} />
-          <h3 class="text-[1.15rem]">{data.title}</h3>
-          <p class="text-muted">{data.text}</p>
-          <p class="rounded-lg bg-soft px-3 py-2 text-[0.88rem]" data-sv-example><span class="font-semibold text-brand-strong">Exemplo:</span> {data.example}</p>
-          {Object.entries(data.solves).map(([pid, why]) => (
-            <p class="sv-why" data-why={pid} hidden><span class="font-semibold text-brand-strong">Neste caso:</span> {why}</p>
-          ))}
-        </li>
-      ))}
-    </ul>
+      {items.map(({ id, data }, n) => {
+        const href = contact(data.about);
+        return (
+          <div class="sv-card sv-panel" role="tabpanel" id={`sv-panel-${id}`} aria-labelledby={`sv-tab-${id}`} tabindex="0" hidden={n !== 0} data-sv-panel>
+            <div class="sv-stage"><ServicePreview kind={data.preview} /></div>
+            <div class="sv-body">
+              <h3 class="sv-title">{data.title}</h3>
+              <p class="text-muted">{data.text}</p>
+              <h4 class="sv-subtitle">Como trabalhamos</h4>
+              <ol class="sv-steps">
+                {data.steps.map((step) => <li>{step}</li>)}
+              </ol>
+              <p class="sv-example"><span class="font-semibold text-brand-strong">Exemplo:</span> {data.example}</p>
+              <a href={href} class="btn btn-primary w-full sm:w-auto sm:justify-self-start" {...(isExternal(href) ? { target: '_blank', rel: 'noopener' } : {})}>
+                {s.contacts.whatsapp && <WhatsAppIcon />}Falar sobre {data.about}
+              </a>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   </div>
+  <!-- O [hidden] do Tailwind usa !important na camada base; um !important só ganha numa camada anterior (theme). -->
+  <noscript><style>.sv-tabs { display: none; } @layer theme { .sv-panel[hidden] { display: grid !important; } } .sv-panel + .sv-panel { margin-top: 16px; }</style></noscript>
 </section>

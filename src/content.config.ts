@@ -57,8 +57,10 @@ const services = defineCollection({
     text: z.string(),
     example: z.string(),
     preview: z.enum(['website', 'app', 'dashboard', 'automation', 'integration', 'support']),
-    /** Problemas (ids de problems.json) que este serviço resolve, com a frase "porquê" mostrada no filtro. */
-    solves: z.record(z.string(), z.string()),
+    /** Como trabalhamos neste serviço: 3 passos, por ordem (painel da secção O que fazemos). */
+    steps: z.array(z.string()).length(3),
+    /** Complemento do botão de contacto: "Falar sobre {about}" (ex.: "um website"). */
+    about: z.string(),
   }),
 });
 

@@ -47,7 +47,7 @@
   .motion .hero-pause { display: grid; }
 
   /* --- O que fazemos: cada pré-visualização faz a sua ação uma vez quando o cartão fica .is-playing
-     (entra no ecrã, aparece no filtro, ou recebe o rato ou um toque; ver initServices em scripts/motion.ts). --- */
+     (o painel abre, a secção entra no ecrã, ou recebe o rato ou um toque; ver initServices em scripts/motion.ts). --- */
   .motion .sv-card.is-playing .mk-btn.sv-swap { animation: sv-press .5s ease .5s both; }
   .motion .sv-card.is-playing .mk-class em.sv-swap { animation: sv-booked .3s ease .9s both; }
   .motion .sv-card.is-playing .sv-swap .sv-a { animation: sv-out .2s ease .85s forwards; }
