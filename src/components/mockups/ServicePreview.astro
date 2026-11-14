@@ -3,19 +3,12 @@
 // Com movimento, cada uma faz a sua ação quando o cartão fica .is-playing (ver motion.css e initServices):
 // --i escalona barras, notificações e vistos.
 import Icon from '../ui/Icon.astro';
-// Website, apps e gestão têm a sua própria pré-visualização em vídeo (WebsiteFilm, AppFilm, ManagementFilm).
-interface Props { kind: 'automation' | 'integration' | 'support' }
+// Website, apps, gestão e automatizações têm a sua própria pré-visualização em vídeo (*Film.astro).
+interface Props { kind: 'integration' | 'support' }
 const { kind } = Astro.props;
 ---
 <div class="sv-mini" aria-hidden="true">
   <div class="sv-inner">
-    {kind === 'automation' && (
-      <div class="mk-notes">
-        <div class="mk-note" style="--i:0"><b>Lembrete enviado</b><span>Sessão amanhã às 14:00</span><span class="mk-ok sm"><Icon name="ok" class="size-3" strokeWidth={3} /></span></div>
-        <div class="mk-note" style="--i:1"><b>Fatura enviada</b><span>Reparação concluída</span><span class="mk-ok sm"><Icon name="ok" class="size-3" strokeWidth={3} /></span></div>
-        <div class="mk-note" style="--i:2"><b>Relatório semanal</b><span>Enviado para a gerência</span><span class="mk-ok sm"><Icon name="ok" class="size-3" strokeWidth={3} /></span></div>
-      </div>
-    )}
     {kind === 'integration' && (
       <div>
         <div class="mk-flow"><span>Website</span><i></i><span>Agenda</span><i></i><span>Lembrete</span><b class="sv-dot"></b></div>

@@ -1,0 +1,105 @@
+---
+import FilmControls from './FilmControls.astro';
+// "Vídeo" do painel Automatizações: o fim do dia passa de tarefas à mão a automações que correm sozinhas, em
+// 5 etapas numa janela (caderno e depois editor de automações). Estado: data-step e classes cumulativas
+// at-1..at-4 no .au (como nos outros vídeos); avanço e controlos em initFilms (scripts/motion.ts).
+// Estilos: automation-film.css. O estado base é o da etapa final; sem movimento, as etapas mudam sem animação.
+// Sem números de resultados: o ganho vê-se no relógio (19:40 antes, 18:00 depois) e no registo.
+const chapters = [
+  { label: 'Antes', caption: 'Fim do dia: faturas, avisos e cópias para o Excel, todos feitos à mão.' },
+  { label: 'As tarefas', caption: 'Listamos as tarefas que se repetem e quando acontecem.' },
+  { label: 'Uma a uma', caption: 'Automatizamos uma de cada vez. No início, confirma cada envio.' },
+  { label: 'Sozinha', caption: 'Quando está tudo certo, corre sozinha e cada envio fica registado.' },
+  { label: 'Registado', caption: 'Se algo falhar, é avisado e corrige num toque.' },
+];
+const last = chapters.length - 1;
+const todo = [
+  'Enviar fatura FT 214',
+  'Avisar cliente: encomenda pronta',
+  'Enviar fatura FT 215',
+  'Avisar cliente: encomenda pronta',
+  'Copiar pedidos para o Excel',
+  'Avisar cliente: encomenda pronta',
+];
+const times = ['18:30', '18:45', '19:05', '19:20', '19:40'];
+const groups: [string, string[], boolean][] = [
+  ['A cada encomenda', ['Avisar o cliente quando está pronta', 'Enviar a fatura'], true],
+  ['Todos os dias', ['Copiar pedidos para o Excel'], true],
+  ['Uma vez por mês', ['Relatório para a contabilidade'], false],
+];
+const log: [string, string][] = [
+  ['17:52', 'SMS enviado: encomenda 58'],
+  ['17:52', 'Fatura FT 215 enviada'],
+  ['17:40', 'SMS enviado: encomenda 57'],
+  ['17:40', 'Fatura FT 214 enviada'],
+];
+const cursor = '<path d="M5 3l14 8-6 2-2 6z" />';
+---
+<div class="film au at-1 at-2 at-3 at-4" data-film data-step={last} data-durations="3200,3200,3700,3400,4300">
+  <div class="au-window" aria-hidden="true">
+    <div class="au-titlebar">
+      <span class="au-dots"><i></i><i></i><i></i></span>
+      <span class="au-wtitle">Automações</span>
+      <span class="au-done">Tudo enviado às 18:00</span>
+    </div>
+    <div class="au-body">
+      <!-- 1 e 2. O caderno do fim do dia, depois as tarefas agrupadas. -->
+      <div class="au-notes">
+        <div class="au-pad">
+          <b>Fazer antes de sair</b>
+          {todo.map((t, i) => <span class="au-todo" style={`--i:${i}`}><i></i>{t}</span>)}
+        </div>
+        <div class="au-clock">
+          <small>Agora</small>
+          <span class="au-time"><span class="au-strip">{times.map((t) => <b>{t}</b>)}</span></span>
+          <small class="au-late">Ainda no escritório</small>
+        </div>
+        <p class="au-groups-title">O que se repete</p>
+        <div class="au-groups">
+          {groups.map(([title, items, repeat], g) => (
+            <div class:list={['au-group', repeat && 'is-repeat']} style={`--i:${g}`}>
+              <span class="au-group-h">{title}{repeat && <em>Repete-se</em>}</span>
+              {items.map((t) => <span class="au-item">{t}</span>)}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- 3 a 5. O editor: automações à esquerda; pré-visualização ou registo à direita. -->
+      <div class="au-editor">
+        <div class="au-canvas">
+          <div class="au-flow au-flow-a">
+            <span class="au-node trigger"><small>Quando</small>Encomenda marcada como pronta</span>
+            <svg class="au-link" viewBox="0 0 10 40" preserveAspectRatio="none"><path pathLength="1" d="M5 0v40" /></svg>
+            <span class="au-node"><small>Fazer</small>Enviar SMS ao cliente</span>
+            <i class="au-pulse"></i>
+          </div>
+          <div class="au-flow au-flow-b">
+            <span class="au-node trigger"><small>Quando</small>Reparação fechada</span>
+            <svg class="au-link" viewBox="0 0 10 40" preserveAspectRatio="none"><path pathLength="1" d="M5 0v40" /></svg>
+            <span class="au-node"><small>Fazer</small>Enviar fatura por email</span>
+            <i class="au-pulse"></i>
+          </div>
+          <span class="au-confirm"><i class="au-switch"></i>Pedir confirmação</span>
+        </div>
+
+        <div class="au-side">
+          <div class="au-preview">
+            <small>Pré-visualização</small>
+            <p class="au-sms">Olá! A sua encomenda já está pronta para levantar.</p>
+            <span class="au-btn"><span class="au-swap"><span class="a">Confirmar envio</span><span class="b">Enviado ✓</span></span></span>
+            <svg class="au-cursor au-cursor-a" viewBox="0 0 24 24" set:html={cursor} />
+          </div>
+          <div class="au-log">
+            <small>Registo</small>
+            <span class="au-row au-fail"><time>17:58</time><span class="au-swap"><span class="a">SMS não enviado: número inválido</span><span class="b">Reenviado: encomenda 59 ✓</span></span></span>
+            {log.map(([t, txt], i) => <span class="au-row" style={`--i:${i}`}><time>{t}</time>{txt}</span>)}
+            <div class="au-alert"><span><b>1 envio falhou</b>Número inválido</span><span class="au-fix">Corrigir</span></div>
+            <svg class="au-cursor au-cursor-b" viewBox="0 0 24 24" set:html={cursor} />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <FilmControls chapters={chapters} />
+</div>

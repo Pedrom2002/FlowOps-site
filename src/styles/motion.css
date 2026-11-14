@@ -48,9 +48,7 @@
 
   /* --- O que fazemos: cada pré-visualização faz a sua ação uma vez quando o cartão fica .is-playing
      (o painel abre, a secção entra no ecrã, ou recebe o rato ou um toque; ver initServices em scripts/motion.ts). --- */
-  .motion .sv-card.is-playing .mk-note { animation: sv-note .4s ease both; animation-delay: calc(.15s + var(--i, 0) * .35s); }
-  .motion .sv-card.is-playing :is(.mk-note, .mk-status div) .mk-ok { animation: sv-pop .3s cubic-bezier(.2, .9, .3, 1.4) both; animation-delay: calc(.45s + var(--i, 0) * .35s); }
-  @keyframes sv-note { from { opacity: 0; transform: translateY(10px); } }
+  .motion .sv-card.is-playing .mk-status div .mk-ok { animation: sv-pop .3s cubic-bezier(.2, .9, .3, 1.4) both; animation-delay: calc(.45s + var(--i, 0) * .35s); }
   @keyframes sv-pop { from { transform: scale(0); } }
   .motion .sv-card.is-playing .sv-dot { animation: sv-travel 1.3s ease-in-out .2s both; }
   .motion .sv-card.is-playing .mk-cal .gr i.n { animation: sv-pop .35s cubic-bezier(.2, .9, .3, 1.4) 1.45s both; }
