@@ -11,27 +11,74 @@ const steps = await getOrdered('steps');
   <BrandF class="wm-f text-white opacity-5" />
   <div class="container-site relative z-[1]">
     <SectionHead id="metodo-title" label={head.label} title={head.title} lead={head.lead} tone="dark" />
-    <!-- Linha de fluxo entre os passos. Fase 3: desenha-se com o scroll (--p de 0 a 1). -->
-    <div class="relative [--p:1]" data-flow>
-    <div class="absolute top-[22px] bottom-[22px] left-[21px] w-0.5 bg-white/20 lg:top-[21px] lg:right-[74px] lg:bottom-auto lg:left-[22px] lg:h-0.5 lg:w-auto" aria-hidden="true">
-      <div class="absolute inset-0 origin-top scale-y-(--p) bg-aqua lg:origin-left lg:scale-x-(--p) lg:scale-y-100"></div>
-    </div>
-    <ol class="relative grid gap-5 lg:grid-cols-[repeat(4,1fr)_96px] lg:gap-4">
-      {steps.map(({ data }, i) => (
-        <li class="grid content-start gap-4 max-lg:grid-cols-[44px_1fr]">
-          <span class="grid size-11 place-items-center rounded-full border-2 border-aqua bg-aqua font-display font-bold text-ink" aria-hidden="true" data-flow-node>{String(i + 1).padStart(2, '0')}</span>
-          <div class="reveal lift grid content-start gap-2.5 rounded-[14px] border border-white/15 bg-brand-deep p-6">
-            <h3 class="text-[1.15rem] text-white"><span class="sr-only">Passo {i + 1}: </span>{data.title}</h3>
-            {data.badge && <span class="justify-self-start rounded-full bg-amber px-2 py-0.5 text-[0.75rem] font-semibold text-ink">{data.badge}</span>}
-            <p class="text-on-deep">{data.text}</p>
-          </div>
+    <!-- Linha do tempo: em cima de cada nó, o que o cliente recebe nesse passo (cartões ilustrativos e
+         decorativos, todos com a mesma anatomia: cabeçalho, dados, rodapé com estado); por baixo, o passo.
+         Quando a secção aparece, a linha desenha-se do 1 ao fim (--lp de 0 a 1) e cada cartão aparece quando o nó acende
+         (.lit, ver initFlow em scripts/motion.ts). -->
+    <div class="mt-flow" data-flow>
+      <div class="mt-line" aria-hidden="true"><i></i><b></b></div>
+      <ol class="mt-steps">
+        {steps.map(({ id, data }, i) => (
+          <li class="mt-step">
+            <div class="mt-obj" aria-hidden="true">
+              {id === 'diagnostico' && (
+                <>
+                  <span class="mt-head"><span class="mt-ico"><Icon name="clock" class="size-[1.15em]" /></span><b>Reunião de diagnóstico</b></span>
+                  <span class="mt-body">
+                    <span class="mt-kv"><span>Data</span><b>Terça, 10:00</b></span>
+                    <span class="mt-kv"><span>Duração</span><b>45 min</b></span>
+                    <span class="mt-kv"><span>Custo</span><b>Gratuito</b></span>
+                  </span>
+                  <span class="mt-foot"><span class="mt-pill is-ok mt-pop">Confirmada</span><span>Convite enviado</span></span>
+                </>
+              )}
+              {id === 'proposta' && (
+                <>
+                  <span class="mt-head"><span class="mt-ico"><Icon name="document" class="size-[1.15em]" /></span><b>Proposta</b><span class="mt-meta">N.º 024</span></span>
+                  <span class="mt-body">
+                    <span class="mt-kv"><span>Âmbito</span><b>Definido</b></span>
+                    <span class="mt-kv"><span>Preço</span><b>Fixo</b></span>
+                    <span class="mt-kv"><span>Prazo</span><b>Acordado</b></span>
+                  </span>
+                  <span class="mt-foot"><span class="mt-pill is-ok mt-pop">Aceite</span><span>Assinada</span></span>
+                </>
+              )}
+              {id === 'desenvolvimento' && (
+                <>
+                  <span class="mt-head"><span class="mt-ico"><Icon name="dashboard" class="size-[1.15em]" /></span><b>Projeto</b><span class="mt-meta">Fase 2 de 3</span></span>
+                  <span class="mt-body">
+                    <span class="mt-progress"><span class="mt-bar"><i></i></span><b>60%</b></span>
+                    <span class="mt-kv"><span>Base</span><span class="mt-pill is-ok">Concluída</span></span>
+                    <span class="mt-kv"><span>Pedidos</span><span class="mt-pill is-wait">Em curso</span></span>
+                    <span class="mt-kv"><span>Faturas</span><span class="mt-pill">Planeada</span></span>
+                  </span>
+                </>
+              )}
+              {id === 'entrega-e-suporte' && (
+                <>
+                  <span class="mt-head"><span class="mt-ico"><Icon name="shield" class="size-[1.15em]" /></span><b>O seu site</b><span class="mt-pill is-ok is-live">Online</span></span>
+                  <span class="mt-body">
+                    <span class="mt-kv"><span>Cópias de segurança</span><b>Diárias</b></span>
+                    <span class="mt-kv"><span>Atualizações</span><b>Em dia</b></span>
+                    <span class="mt-kv"><span>Último pedido</span><b class="mt-pop">Resolvido</b></span>
+                  </span>
+                  <span class="mt-foot"><span class="mt-btn">Pedir alteração</span></span>
+                </>
+              )}
+            </div>
+            <span class="mt-node" aria-hidden="true" data-flow-node>{String(i + 1).padStart(2, '0')}</span>
+            <div class="mt-txt reveal">
+              <h3><span class="sr-only">Passo {i + 1}: </span>{data.title}</h3>
+              {data.badge && <span class="mt-badge">{data.badge}</span>}
+              <p>{data.text}</p>
+            </div>
+          </li>
+        ))}
+        <li class="mt-end" aria-hidden="true" data-flow-end>
+          <span class="mt-end-node"><Icon name="ok" class="size-6" strokeWidth={2.6} /></span>
+          <span class="mt-end-label">{head.endLabel}</span>
         </li>
-      ))}
-      <li class="grid content-start justify-items-center gap-2 text-center max-lg:grid-cols-[44px_1fr] max-lg:items-center max-lg:justify-items-start max-lg:text-left" aria-hidden="true" data-flow-end>
-        <span class="grid size-11 place-items-center rounded-full bg-amber text-white"><Icon name="ok" class="size-6" strokeWidth={2.6} /></span>
-        <span class="text-[0.85rem] font-semibold">{head.endLabel}</span>
-      </li>
-    </ol>
+      </ol>
     </div>
   </div>
 </section>

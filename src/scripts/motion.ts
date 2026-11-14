@@ -29,38 +29,47 @@ function initReveal() {
   items.filter((el) => !el.classList.contains('in')).forEach((el) => io.observe(el));
 }
 
-// 2. Linha do método: progresso de 0 a 1 ligado ao scroll, só enquanto a secção está visível.
+// 2. Linha do método: quando a secção aparece, um ponto percorre a linha do passo 1 até ao fim (--lp de 0 a 1),
+// acende cada passo quando lá chega (.lit) e no fim aparece o certo de "Problema resolvido" (.done). Corre uma vez.
 function initFlow() {
   const flow = document.querySelector<HTMLElement>('[data-flow]');
-  if (!flow || !motion) return;
+  const line = flow?.querySelector<HTMLElement>('.mt-line');
+  if (!flow || !line || !motion) return;
   const nodes = [...flow.querySelectorAll<HTMLElement>('[data-flow-node]')];
-  let ticking = false;
-  const update = () => {
-    ticking = false;
-    const r = flow.getBoundingClientRect();
-    const p = Math.max(0, Math.min(1, (window.innerHeight * 0.8 - r.top) / (r.height * 0.85 + 1)));
-    flow.style.setProperty('--p', p.toFixed(3));
-    nodes.forEach((n, i) => n.classList.toggle('lit', p >= i / nodes.length + 0.01));
-    flow.classList.toggle('done', p >= 0.98);
+  flow.style.setProperty('--lp', '0');
+  const run = () => {
+    // Onde fica cada nó ao longo da linha (horizontal no computador, vertical no telemóvel), de 0 a 1.
+    const desk = window.matchMedia('(min-width: 1024px)').matches;
+    const lr = line.getBoundingClientRect();
+    const len = (desk ? lr.width : lr.height) || 1;
+    const at = nodes.map((n) => {
+      const r = n.getBoundingClientRect();
+      const c = desk ? r.left + r.width / 2 - lr.left : r.top + r.height / 2 - lr.top;
+      return Math.max(0, Math.min(1, c / len));
+    });
+    const dur = desk ? 3600 : 5000;
+    const t0 = performance.now();
+    flow.classList.add('is-running');
+    const frame = (now: number) => {
+      const t = Math.min(1, (now - t0) / dur);
+      const p = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2; // arranca e trava com suavidade
+      flow.style.setProperty('--lp', p.toFixed(4));
+      nodes.forEach((n, i) => n.classList.toggle('lit', p >= (at[i] ?? 0) - 0.005));
+      if (t < 1) return void requestAnimationFrame(frame);
+      flow.classList.remove('is-running');
+      flow.classList.add('done');
+    };
+    requestAnimationFrame(frame);
   };
-  const onScroll = () => {
-    if (!ticking) {
-      ticking = true;
-      requestAnimationFrame(update);
-    }
-  };
-  update();
-  new IntersectionObserver(([entry]) => {
-    if (entry?.isIntersecting) {
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
-      update();
-    } else {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-      update();
-    }
-  }).observe(flow);
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry?.isIntersecting) return;
+      io.disconnect();
+      run();
+    },
+    { threshold: 0.35 },
+  );
+  io.observe(flow);
 }
 
 // 3. Hero: os 4 exemplos do telemóvel. Clicar num nome ou nas setas mostra esse exemplo; com movimento,

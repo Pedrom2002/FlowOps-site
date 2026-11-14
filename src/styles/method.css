@@ -1,0 +1,162 @@
+/* Secção "Como trabalhamos": uma linha do tempo. Em cima de cada nó está o que o cliente recebe nesse
+   passo (reunião, proposta, projeto, site em produção; cartões decorativos, aria-hidden), ligado ao nó
+   por um pé tracejado; por baixo, o título e o texto do passo, sem caixa.
+   Os 4 cartões têm a mesma anatomia, como componentes da mesma app: cabeçalho (ícone, título, dado),
+   linhas de dados e rodapé com o estado.
+   Com movimento, cada cartão sobe e ganha vida quando o nó acende (.lit, ver initFlow em scripts/motion.ts);
+   sem movimento, fica tudo no estado final. */
+@layer components {
+  .mt-flow {
+    --oh: 11.75rem; /* altura dos cartões (no computador): a linha fica logo por baixo */
+    --stem: 1.5rem; /* pé entre o cartão e o nó */
+    position: relative;
+    margin-top: .5rem;
+  }
+
+  /* --- Linha: no computador, horizontal à altura dos nós; no telemóvel, vertical à esquerda --- */
+  .mt-line { position: absolute; top: 22px; bottom: 22px; left: 21px; width: 2px; background: rgb(255 255 255 / .2); }
+  .mt-line i { position: absolute; inset: 0; background: var(--color-aqua); transform-origin: top; scale: 1 var(--lp, 1); }
+
+  .mt-steps { position: relative; display: grid; gap: 2.25rem; }
+  .mt-step { display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 18px; align-items: start; }
+  .mt-node {
+    position: relative;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--color-aqua);
+    border-radius: 50%;
+    background: var(--color-aqua);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+  .mt-txt { grid-column: 2; grid-row: 1; display: grid; justify-items: start; gap: .55rem; padding-top: .45rem; }
+  .mt-txt h3 { color: #fff; font-size: 1.25rem; line-height: 1.25; }
+  .mt-txt p { max-width: 34ch; color: var(--color-on-deep); line-height: 1.55; }
+  .mt-badge { padding: .15rem .6rem; border-radius: 999px; background: var(--color-amber); color: var(--color-ink); font-size: .78rem; font-weight: 650; }
+  .mt-step > .mt-obj { grid-column: 2; grid-row: 2; margin-top: 1rem; }
+
+  .mt-end { display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 18px; align-items: center; }
+  .mt-end-node { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--color-amber); color: #fff; }
+  .mt-end-label { font-family: var(--font-display); font-size: 1.05rem; font-weight: 750; }
+
+  @media (min-width: 1024px) {
+    .mt-line { top: calc(var(--oh) + var(--stem) + 21px); right: 3.5rem; bottom: auto; width: auto; height: 2px; }
+    .mt-line i { transform-origin: left; scale: var(--lp, 1) 1; }
+    .mt-steps { grid-template-columns: repeat(4, minmax(0, 1fr)) 7rem; gap: 1.75rem; }
+    .mt-step { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--oh) var(--stem) 44px auto; }
+    .mt-step > .mt-obj { grid-column: 1; grid-row: 1; height: 100%; margin-top: 0; }
+    .mt-node { grid-row: 3; }
+    .mt-node::before { content: ''; position: absolute; bottom: 100%; left: 50%; height: var(--stem); border-left: 2px dashed rgb(255 255 255 / .35); }
+    .mt-txt { grid-column: 1; grid-row: 4; padding-top: 1.25rem; }
+    .mt-end { grid-template-columns: none; justify-items: center; align-content: start; gap: .6rem; padding-top: calc(var(--oh) + var(--stem)); text-align: center; }
+    .mt-end-label { font-size: .95rem; }
+  }
+
+  /* --- Cartões: a mesma anatomia nos 4 --- */
+  .mt-obj {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 24rem;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgb(15 31 28 / .06), 0 1px 2px rgb(0 0 0 / .1), 0 24px 48px -24px rgb(0 0 0 / .6);
+    color: var(--color-ink);
+    font-size: .84rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.3;
+    overflow: hidden;
+    transition: translate .3s ease, box-shadow .3s ease;
+  }
+  @media (min-width: 1024px) { .mt-obj { max-width: none; font-size: .78rem; } }
+  @media (min-width: 1024px) and (hover: hover) {
+    .mt-step:hover .mt-obj { translate: 0 -4px; box-shadow: 0 0 0 1px rgb(15 31 28 / .06), 0 2px 4px rgb(0 0 0 / .1), 0 30px 56px -24px rgb(0 0 0 / .65); }
+  }
+
+  .mt-head { display: flex; align-items: center; gap: .65em; padding: .8em 1em; border-bottom: 1px solid #edf2f0; }
+  .mt-head b { flex: 1; min-width: 0; overflow: hidden; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+  .mt-ico { display: grid; flex-shrink: 0; place-items: center; width: 2em; height: 2em; border-radius: 7px; background: var(--color-soft); color: var(--color-brand); }
+  .mt-meta { color: #6b7c78; font-size: .92em; white-space: nowrap; }
+
+  .mt-body { display: flex; flex: 1; flex-direction: column; justify-content: center; gap: .6em; padding: .75em 1em; }
+  .mt-kv { display: flex; align-items: center; justify-content: space-between; gap: .8em; }
+  .mt-kv > span:first-child { color: #6b7c78; }
+  .mt-kv b { font-weight: 600; white-space: nowrap; }
+
+  .mt-foot { display: flex; align-items: center; justify-content: space-between; gap: .8em; padding: .65em 1em; border-top: 1px solid #edf2f0; background: #fafcfb; color: #6b7c78; font-size: .92em; }
+
+  /* Estados: verde (feito), âmbar (a decorrer), cinzento (ainda não). */
+  .mt-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .4em;
+    padding: .2em .6em;
+    border-radius: 999px;
+    background: #f1f5f4;
+    color: #4b5b57;
+    font-size: .92em;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .mt-pill::before { content: ''; width: .45em; height: .45em; border-radius: 50%; background: currentColor; opacity: .7; }
+  .mt-pill.is-ok { background: #e6f7f3; color: #0f766e; }
+  .mt-pill.is-wait { background: #fef6e4; color: #92400e; }
+
+  .mt-progress { display: flex; align-items: center; gap: .7em; }
+  .mt-progress b { font-weight: 650; }
+  .mt-bar { flex: 1; height: .4em; border-radius: 99px; background: #e9efed; overflow: hidden; }
+  .mt-bar i { display: block; height: 100%; border-radius: inherit; background: var(--color-brand); transform-origin: left; scale: .6 1; }
+
+  .mt-btn { flex: 1; padding: .45em; border: 1px solid #d5e2de; border-radius: 7px; background: #fff; color: var(--color-ink); font-weight: 600; text-align: center; }
+
+  /* --- Movimento: o cartão sobe quando o nó acende e depois o estado muda --- */
+  .motion .mt-obj { transition: opacity .5s ease, translate .7s cubic-bezier(.2, .8, .2, 1), box-shadow .3s ease; }
+  .motion .mt-pop { transition: opacity .3s ease .6s, scale .4s cubic-bezier(.3, 1.5, .5, 1) .6s; }
+  .motion .mt-bar i { transition: scale 1.2s cubic-bezier(.65, 0, .25, 1) .45s; }
+  .motion .mt-pill.is-live::before { animation: mt-pulse 2s ease-in-out infinite; }
+  @keyframes mt-pulse { 50% { opacity: .25; } }
+
+  /* Ponto que percorre a linha enquanto ela se desenha. */
+  .mt-line b {
+    position: absolute;
+    top: calc(var(--lp, 1) * 100%);
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgb(94 234 212 / .35), 0 0 18px 5px rgb(94 234 212 / .55);
+    translate: -50% -50%;
+    opacity: 0;
+    transition: opacity .3s ease;
+  }
+  @media (min-width: 1024px) { .mt-line b { top: 50%; left: calc(var(--lp, 1) * 100%); } }
+  .motion .mt-flow.is-running .mt-line b { opacity: 1; }
+
+  /* Fim: o círculo fica vazio até o ponto chegar; depois o certo salta, com uma onda, e aparece o texto. */
+  .mt-end-node { position: relative; }
+  .motion .mt-flow:not(.done) .mt-end-node { background: transparent; box-shadow: inset 0 0 0 2px rgb(255 255 255 / .3); color: transparent; }
+  .motion .mt-flow:not(.done) .mt-end-label { opacity: 0; translate: 0 6px; }
+  .motion .mt-end-label { transition: opacity .4s ease .3s, translate .4s ease .3s; }
+  .motion .mt-flow.done .mt-end-node { animation: mt-check .55s cubic-bezier(.3, 1.6, .5, 1); }
+  @keyframes mt-check { from { scale: .3; } }
+  .motion .mt-flow.done .mt-end-node::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--color-amber);
+    border-radius: 50%;
+    animation: mt-ring .9s ease-out .1s both;
+  }
+  @keyframes mt-ring { from { opacity: .9; scale: 1; } to { opacity: 0; scale: 2.3; } }
+
+  /* Antes de acender: sem atraso, para ao voltar para cima tudo recolher logo. */
+  .motion .mt-step:has(> .mt-node:not(.lit)) .mt-obj { opacity: 0; translate: 0 18px; transition-duration: .25s; }
+  .motion .mt-step:has(> .mt-node:not(.lit)) .mt-pop { opacity: 0; scale: .7; transition-delay: 0s; }
+  .motion .mt-step:has(> .mt-node:not(.lit)) .mt-bar i { scale: 0 1; transition-delay: 0s; }
+}

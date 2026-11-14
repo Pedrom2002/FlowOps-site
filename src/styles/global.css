@@ -3,6 +3,7 @@
 @import '@fontsource-variable/inter/wght.css';
 @import './mockups.css';
 @import './problems.css';
+@import './method.css';
 @import './motion.css';
 
 /* Tokens da marca (brand board aprovada). Contrastes WCAG em README.md. */
