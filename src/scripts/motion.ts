@@ -463,25 +463,13 @@ function initProblems() {
 }
 
 // 5. O que fazemos: separadores (padrão ARIA tabs). Clicar num serviço, ou usar as setas/Home/End, abre o
-// painel desse serviço. Com movimento, a pré-visualização do painel faz a sua ação (classe .is-playing, ver
-// motion.css) quando o painel abre, quando a secção aparece no ecrã e quando recebe o rato ou um toque.
+// painel desse serviço. O vídeo de cada painel (initFilms) recebe os eventos sv-open e sv-close.
 function initServices() {
   const root = document.querySelector<HTMLElement>('[data-sv]');
   if (!root) return;
   const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-sv-tab]')];
   const panels = [...root.querySelectorAll<HTMLElement>('[data-sv-panel]')];
-  const playedAt = new WeakMap<HTMLElement, number>();
   let current = Math.max(0, tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true'));
-
-  const play = (panel: HTMLElement, force = false) => {
-    if (!motion) return;
-    const last = playedAt.get(panel) ?? -Infinity;
-    if (!force && performance.now() - last < 2500) return; // não repete enquanto ainda está a tocar
-    playedAt.set(panel, performance.now());
-    panel.classList.remove('is-playing');
-    void panel.offsetWidth;
-    panel.classList.add('is-playing');
-  };
 
   const select = (i: number, focus = false) => {
     const next = (i + tabs.length) % tabs.length;
@@ -511,7 +499,6 @@ function initServices() {
       panel.classList.add('sv-enter');
     }
     current = next;
-    play(panel, true);
   };
 
   tabs.forEach((t, n) => t.addEventListener('click', () => select(n)));
@@ -521,23 +508,6 @@ function initServices() {
     e.preventDefault();
     select(keys[e.key]!, true);
   });
-
-  if (!motion) return;
-  panels.forEach((p) => {
-    p.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && play(p));
-    p.addEventListener('click', (e) => !(e.target as Element).closest('a') && play(p));
-  });
-  const io = new IntersectionObserver(
-    ([entry]) => {
-      if (!entry?.isIntersecting) return;
-      io.disconnect();
-      const panel = panels[current];
-      if (panel) play(panel);
-    },
-    { threshold: 0.4 },
-  );
-  const first = panels[current];
-  if (first) io.observe(first);
 }
 
 // 6. "Vídeos" dos serviços ([data-film]: WebsiteFilm, AppFilm, ...): etapas com duração em data-durations e classes

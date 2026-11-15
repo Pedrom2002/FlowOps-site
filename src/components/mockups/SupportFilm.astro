@@ -1,0 +1,98 @@
+---
+import FilmControls from './FilmControls.astro';
+// "Vídeo" do painel Manutenção e suporte: o site da Padaria Lumen (fictícia) passa de esquecido a mantido, com
+// pedidos respondidos e melhorias com preço acordado, em 5 etapas. Estado: data-step e classes cumulativas
+// at-1..at-4 no .su (como nos outros vídeos); avanço e controlos em initFilms (scripts/motion.ts).
+// Estilos: support-film.css. O estado base é o da etapa final; sem movimento, as etapas mudam sem animação.
+// Promete só o que o site promete (resposta em até 1 dia útil) e não mostra preços.
+const chapters = [
+  { label: 'Antes', caption: 'Sem manutenção: avisos de segurança, atualizações em atraso e pedidos sem resposta.' },
+  { label: 'Tratado', caption: 'Tratamos do alojamento, das cópias de segurança e das atualizações.' },
+  { label: 'Pedido', caption: 'Os pedidos de alteração têm resposta em até 1 dia útil.' },
+  { label: 'Melhoria', caption: 'As melhorias têm preço acordado antes de começarmos.' },
+  { label: 'Em dia', caption: 'O site mantém-se seguro e atualizado, e cresce quando for preciso.' },
+];
+const last = chapters.length - 1;
+const pending = ['Segurança', 'Formulário de contacto', 'Tema', 'Servidor'];
+const maint: [string, string][] = [['Alojamento', 'Online'], ['Cópia de segurança', 'hoje, 03:00'], ['Atualizações', 'Aplicadas'], ['Certificado', 'Renovado']];
+const products: [string, string][] = [['Pão de centeio', '#b98a55'], ['Croissant', '#e0b26b'], ['Broa de milho', '#d9a441']];
+const summary = ['Cópias de segurança diárias', 'Atualizações aplicadas', '1 pedido respondido', '1 melhoria entregue'];
+const lock = '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>';
+const cursor = '<path d="M5 3l14 8-6 2-2 6z" />';
+---
+<div class="film su at-1 at-2 at-3 at-4" data-film data-step={last} data-durations="3600,3400,3800,3800,4000">
+  <div class="su-stage" aria-hidden="true">
+    <!-- O site da padaria num browser: segurança, horário e o botão novo mudam ao longo do vídeo. -->
+    <div class="su-browser">
+      <div class="su-bar">
+        <span class="su-dots"><i></i><i></i><i></i></span>
+        <span class="su-url">
+          <span class="su-sec"><span class="a">Não seguro</span><svg class="b" viewBox="0 0 24 24" set:html={lock} /></span>
+          padarialumen.pt
+        </span>
+      </div>
+      <div class="su-site">
+        <span class="su-nav"><b>Padaria Lumen</b><span>Pão</span><span>Bolos</span><span>Contactos</span></span>
+        <div class="su-hero">
+          <b>Pão de fermentação lenta, todos os dias</b>
+          <span class="su-order">Encomendar bolo-rei</span>
+        </div>
+        <div class="su-products">{products.map(([p, c]) => <span><i style={`background:${c}`}></i>{p}</span>)}</div>
+        <div class="su-hours">
+          <small>Horário</small>
+          <span class="su-swap"><span class="a">Feriado de 1 de novembro: aberto 8h às 13h</span><span class="b">Véspera de Natal: 7h às 14h</span></span>
+          <em class="su-stale">Desatualizado</em>
+        </div>
+        <span class="su-foot"><i></i><i></i><i></i></span>
+      </div>
+    </div>
+
+    <!-- À direita, um painel por etapa. -->
+    <div class="su-col">
+      <div class="su-old">
+        <div class="su-card su-warn">
+          <b>Atualizações pendentes</b>
+          <span class="su-tags">{pending.map((t, i) => <em style={`--i:${i}`}>{t}</em>)}</span>
+        </div>
+        <div class="su-msg">
+          <small>Mensagem</small>
+          <p class="su-bubble them">Alguém pode mudar o horário do site?</p>
+          <small class="su-seen">Visto há 5 dias</small>
+        </div>
+      </div>
+
+      <div class="su-maint su-card">
+        <span class="su-head"><b>Manutenção</b><small>Padaria Lumen</small></span>
+        {maint.map(([k, v], i) => <span class="su-check" style={`--i:${i}`}><i>✓</i>{k}<small>{v}</small></span>)}
+      </div>
+
+      <div class="su-req">
+        <small>Pedidos</small>
+        <p class="su-bubble them">Podem mudar o horário para a véspera de Natal? 7h às 14h.<time>seg 9:12</time></p>
+        <span class="su-chip">Pedido recebido: resposta em até 1 dia útil</span>
+        <span class="su-typing"><i></i><i></i><i></i></span>
+        <p class="su-bubble us">Horário atualizado. Pode confirmar?<time>seg 15:40</time></p>
+      </div>
+
+      <div class="su-prop">
+        <small>Pedidos</small>
+        <p class="su-bubble them">Dá para aceitar encomendas de bolo-rei pelo site?</p>
+        <div class="su-card su-offer">
+          <b>Proposta: encomendas online</b>
+          <span>Escolher tamanho e dia de levantamento</span>
+          <span>Pagamento na loja</span>
+          <strong>Preço fechado antes de começar</strong>
+          <span class="su-approve"><span class="su-swap"><span class="a">Aprovar</span><span class="b">Aprovado ✓</span></span></span>
+        </div>
+      </div>
+
+      <div class="su-sum su-card">
+        <span class="su-head"><b>Resumo de novembro</b></span>
+        {summary.map((t, i) => <span class="su-check" style={`--i:${i}`}><i>✓</i>{t}</span>)}
+        <span class="su-seal">Tudo em dia</span>
+      </div>
+    </div>
+    <svg class="su-cursor" viewBox="0 0 24 24" set:html={cursor} />
+  </div>
+  <FilmControls chapters={chapters} />
+</div>

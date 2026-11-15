@@ -1,0 +1,143 @@
+/* "Vídeo" do painel Manutenção e suporte (components/mockups/SupportFilm.astro). Como nos outros vídeos: o estado
+   base é o da etapa final, as classes cumulativas at-1..at-4 no .su decidem o que se vê, e as animações só existem
+   com movimento (.motion). Controlos, pausa e ausência de movimento em films.css. Nada fica em ciclo infinito. */
+@layer components {
+  .su { max-width: 480px; }
+  .su-stage { container-type: inline-size; position: relative; aspect-ratio: 16 / 10.5; overflow: hidden; border: 1px solid var(--color-line); border-radius: 12px; background: #e6efed; box-shadow: 0 26px 50px -30px rgb(15 31 28 / .5); font-size: clamp(6px, 2.45cqi, 12px); line-height: 1.3; color: var(--color-ink); }
+  .su-swap, .su-sec { display: inline-grid; align-items: center; }
+  .su-swap > *, .su-sec > * { grid-area: 1 / 1; }
+  .su-swap .a, .su-sec .a { opacity: 0; }
+
+  /* --- O site no browser --- */
+  .su-browser { position: absolute; left: 4%; top: 6%; width: 56%; height: 88%; display: grid; grid-template-rows: auto 1fr; overflow: hidden; border: 1px solid var(--color-line); border-radius: 10px; background: #fff; box-shadow: 0 16px 26px -18px rgb(15 31 28 / .5); }
+  .su-bar { display: flex; align-items: center; gap: 2cqi; min-height: 6.4cqi; padding: 0 2cqi; border-bottom: 1px solid var(--color-line); background: #eef2f1; }
+  .su-dots { display: flex; gap: 1cqi; }
+  .su-dots i { width: 1.6cqi; height: 1.6cqi; border-radius: 50%; background: #c9d4d1; }
+  .su-url { flex: 1; display: flex; align-items: center; gap: .5em; padding: .3em .7em; border-radius: 99px; background: #fff; color: #4b5b57; font-size: .66em; }
+  .su-sec .a { padding: .1em .5em; border-radius: 99px; background: #fde8e6; color: #9f1d14; font-weight: 700; white-space: nowrap; }
+  .su-sec .b { width: 1.2em; height: 1.2em; fill: none; stroke: var(--color-brand); stroke-width: 2.6; stroke-linecap: round; }
+  .su:not(.at-1) .su-sec .a { opacity: 1; }
+  .su:not(.at-1) .su-sec .b { opacity: 0; }
+
+  .su-site { display: grid; grid-template-rows: auto 1fr auto auto auto; gap: .65em; padding: 4% 5%; background: #fffaf2; }
+  .su-nav { display: flex; align-items: center; gap: 1em; font-size: .7em; color: #6b4a2a; }
+  .su-nav b { margin-right: auto; font-family: var(--font-display); font-size: 1.25em; color: #4a2c12; }
+  .su-hero { display: grid; align-content: end; justify-items: start; gap: .7em; padding: 1em; border-radius: .7em; background: linear-gradient(135deg, #f3dfba, #e2b77a 70%, #c98f4c); }
+  .su-hero b { max-width: 13em; font-family: var(--font-display); font-size: 1.05em; line-height: 1.2; color: #3b220c; }
+  .su-order { padding: .45em .9em; border-radius: 99px; background: #3b220c; color: #fff; font-size: .7em; font-weight: 700; }
+  .su:not(.at-4) .su-order { visibility: hidden; }
+  .su-products { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5em; }
+  .su-products span { display: grid; justify-items: center; gap: .3em; padding: .5em .3em; border: 1px solid #ecdcc4; border-radius: .6em; background: #fff; color: #4a2c12; font-size: .64em; font-weight: 600; text-align: center; }
+  .su-products i { width: 2.2em; height: 2.2em; border-radius: 50%; box-shadow: inset 0 -.3em 0 rgb(0 0 0 / .12); }
+  .su-hours { position: relative; display: grid; gap: .2em; padding: .6em .8em; border: 1px solid #ecdcc4; border-radius: .6em; background: #fff; font-size: .74em; }
+  .su-hours small { color: #8a6a4a; font-weight: 700; font-size: .85em; }
+  .su-hours .su-swap { font-weight: 600; }
+  .su:not(.at-2) .su-hours .su-swap .a { opacity: 1; }
+  .su:not(.at-2) .su-hours .su-swap .b { opacity: 0; }
+  .su-stale { position: absolute; right: .6em; top: .5em; padding: .1em .55em; border-radius: 99px; background: #fde8e6; color: #9f1d14; font-size: .8em; font-style: normal; font-weight: 700; opacity: 0; }
+  .su:not(.at-1) .su-stale { opacity: 1; }
+  .su-foot { display: flex; gap: .6em; }
+  .su-foot i { height: .45em; flex: 1; border-radius: 99px; background: #f0e4d2; }
+
+  /* --- Coluna da direita: um painel por etapa --- */
+  .su-col { position: absolute; left: 63.5%; top: 6%; width: 32.5%; height: 88%; }
+  .su-col > * { position: absolute; inset: 0; height: fit-content; margin-block: auto; transition: opacity .4s, transform .45s cubic-bezier(.2, .9, .3, 1); }
+  .su-old, .su-maint, .su-req, .su-prop { opacity: 0; transform: translateY(4%); pointer-events: none; }
+  .su:not(.at-1) .su-old, .su.at-1:not(.at-2) .su-maint, .su.at-2:not(.at-3) .su-req, .su.at-3:not(.at-4) .su-prop { opacity: 1; transform: none; }
+  .su:not(.at-4) .su-sum { opacity: 0; transform: translateY(4%); }
+  .su-old, .su-req, .su-prop { display: grid; align-content: start; gap: .6em; }
+  .su-col small { color: #6b7b77; font-size: .66em; font-weight: 700; }
+  .su-card { display: grid; gap: .55em; padding: .9em; border: 1px solid #dfe6e4; border-radius: .9em; background: #fff; box-shadow: 0 12px 22px -16px rgb(15 31 28 / .5); font-size: .8em; }
+  .su-card > b, .su-head b { font-size: 1.05em; }
+  .su-head { display: grid; gap: .1em; margin-bottom: .2em; }
+  .su-head small { font-size: .85em; }
+
+  .su-warn { border-color: #f4c7c2; background: #fff7f6; }
+  .su-warn > b { color: #9f1d14; }
+  .su-tags { display: flex; flex-wrap: wrap; gap: .35em; }
+  .su-tags em { padding: .15em .55em; border-radius: 99px; background: #fde8e6; color: #9f1d14; font-size: .82em; font-style: normal; font-weight: 600; }
+  .su-msg { display: grid; gap: .35em; }
+  .su-bubble { position: relative; margin: 0; padding: .6em .75em; border-radius: .9em; font-size: .78em; }
+  .su-bubble time { display: block; margin-top: .25em; font-size: .85em; opacity: .7; }
+  .su-bubble.them { justify-self: end; max-width: 90%; border-bottom-right-radius: .2em; background: #fff; border: 1px solid #e3e9e7; }
+  .su-bubble.us { justify-self: start; max-width: 90%; border-bottom-left-radius: .2em; background: var(--color-brand); color: #fff; }
+  .su-seen { justify-self: end; color: #9aa8a4 !important; font-weight: 600 !important; }
+
+  .su-check { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: .1em .6em; font-weight: 600; }
+  .su-check i { display: grid; place-items: center; flex: none; width: 1.5em; height: 1.5em; border-radius: 50%; background: var(--color-brand); color: #fff; font-size: .8em; font-style: normal; font-weight: 800; }
+  .su-check small { grid-column: 2; color: #0b5c55 !important; font-size: .85em !important; }
+
+  .su-chip { justify-self: center; padding: .3em .8em; border-radius: 99px; background: #ddf0ec; color: #0b5c55; font-size: .66em; font-weight: 700; text-align: center; }
+  .su-typing { display: none; }
+
+  .su-offer { gap: .4em; }
+  .su-offer span:not(.su-approve):not(.su-swap):not(.a):not(.b) { padding-left: .9em; color: #4b5b57; position: relative; }
+  .su-offer span:not(.su-approve):not(.su-swap):not(.a):not(.b)::before { content: ""; position: absolute; left: 0; top: .5em; width: .35em; height: .35em; border-radius: 50%; background: var(--color-brand); }
+  .su-offer strong { margin-top: .2em; padding: .35em .6em; border-radius: .5em; background: #f0faf7; color: #0b5c55; font-size: .92em; }
+  .su-approve { justify-self: start; margin-top: .2em; padding: .5em 1em; border-radius: 99px; background: var(--color-brand); color: #fff; font-weight: 700; }
+  .su-approve .su-swap .a { opacity: 0; }
+
+  .su-sum { gap: .6em; }
+  .su-seal { justify-self: start; margin-top: .3em; padding: .4em 1em; border-radius: 99px; background: var(--color-ink); color: #fff; font-weight: 700; }
+
+  .su-cursor { position: absolute; width: 5%; fill: #14201d; stroke: #fff; stroke-width: 1.6; stroke-linejoin: round; opacity: 0; pointer-events: none; }
+
+  /* --- Movimento --- */
+  /* Etapa 1: o site está esquecido. */
+  .motion .su:not(.at-1) .su-sec .a { animation: su-shake .5s ease .5s both; }
+  .motion .su:not(.at-1) .su-warn { animation: su-pop .4s ease .3s both; }
+  .motion .su:not(.at-1) .su-tags em { animation: su-pop .3s cubic-bezier(.2, .9, .3, 1.5) both; animation-delay: calc(.6s + var(--i) * .35s); }
+  .motion .su:not(.at-1) .su-msg { animation: su-pop .4s ease 1.9s both; }
+  .motion .su:not(.at-1) .su-seen { animation: su-fade .4s ease 2.6s both; }
+  .motion .su:not(.at-1) .su-stale { animation: su-pop .3s cubic-bezier(.2, .9, .3, 1.5) 2.9s both; }
+  @keyframes su-shake { 0%, 100% { translate: 0; } 20%, 60% { translate: -.25em; } 40%, 80% { translate: .25em; } }
+
+  /* Etapa 2: cada parte fica tratada e o site volta a ser seguro. */
+  .motion .su.at-1:not(.at-2) .su-maint { transition-delay: .2s; }
+  .motion .su.at-1:not(.at-2) .su-check i { animation: su-tick .35s cubic-bezier(.2, .9, .3, 1.6) both; animation-delay: calc(.7s + var(--i) * .45s); }
+  .motion .su.at-1:not(.at-2) .su-check small { animation: su-fade .3s ease both; animation-delay: calc(.8s + var(--i) * .45s); }
+  .motion .su.at-1:not(.at-2) .su-sec .a { animation: su-out .2s ease 2.3s both; }
+  .motion .su.at-1:not(.at-2) .su-sec .b { animation: su-pop .35s cubic-bezier(.2, .9, .3, 1.6) 2.35s both; }
+  .motion .su.at-1:not(.at-2) .su-stale { animation: su-out .3s ease 2.3s both; }
+  @keyframes su-tick { from { opacity: 0; transform: scale(0); } }
+
+  /* Etapa 3: o pedido chega, é respondido e o horário muda no site. */
+  .motion .su.at-2:not(.at-3) .su-req .them { animation: su-pop .4s ease .3s both; }
+  .motion .su.at-2:not(.at-3) .su-chip { animation: su-pop .35s ease .9s both; }
+  .motion .su.at-2:not(.at-3) .su-typing { display: flex; gap: .25em; justify-self: start; padding: .6em .75em; border-radius: .9em; background: #e7f5f1; animation: su-typing 1s ease 1.3s both; }
+  .su-typing i { width: .4em; height: .4em; border-radius: 50%; background: var(--color-brand); }
+  .motion .su.at-2:not(.at-3) .su-typing i { animation: su-dot .5s ease-in-out 1.3s 2 alternate both; }
+  .motion .su.at-2:not(.at-3) .su-typing i:nth-child(2) { animation-delay: 1.45s; }
+  .motion .su.at-2:not(.at-3) .su-typing i:nth-child(3) { animation-delay: 1.6s; }
+  .motion .su.at-2:not(.at-3) .su-req .us { animation: su-pop .4s ease 2.3s both; }
+  .motion .su.at-2:not(.at-3) .su-hours .su-swap .a { animation: su-out .25s ease 2.8s both; }
+  .motion .su.at-2:not(.at-3) .su-hours .su-swap .b { animation: su-pop .35s ease 2.85s both; }
+  .motion .su.at-2:not(.at-3) .su-hours { animation: su-glow 1.2s ease 2.85s both; }
+  @keyframes su-typing { 0% { opacity: 0; max-height: 3em; } 10%, 90% { opacity: 1; } 100% { opacity: 0; max-height: 0; padding-block: 0; margin-block: -.3em; } }
+  @keyframes su-dot { to { transform: translateY(-.25em); opacity: .5; } }
+  @keyframes su-glow { 0% { box-shadow: 0 0 0 0 rgb(94 234 212 / 0); } 30% { box-shadow: 0 0 0 .35em rgb(94 234 212 / .6); } 100% { box-shadow: 0 0 0 .7em rgb(94 234 212 / 0); } }
+
+  /* Etapa 4: a proposta tem preço fechado e só começa depois de aprovada. */
+  .motion .su.at-3:not(.at-4) .su-prop .them { animation: su-pop .4s ease .3s both; }
+  .motion .su.at-3:not(.at-4) .su-offer { animation: su-slide .45s cubic-bezier(.2, .9, .3, 1.2) 1s both; }
+  .motion .su.at-3:not(.at-4) .su-offer strong { animation: su-glow 1.2s ease 1.6s both; }
+  .su.at-3:not(.at-4) .su-approve .su-swap .a { opacity: 1; }
+  .su.at-3:not(.at-4) .su-approve .su-swap .b { opacity: 0; }
+  .motion .su.at-3:not(.at-4) .su-approve .su-swap .a { animation: su-out .2s ease 2.75s forwards; }
+  .motion .su.at-3:not(.at-4) .su-approve .su-swap .b { animation: su-pop .35s ease 2.8s forwards; }
+  .motion .su.at-3:not(.at-4) .su-approve { animation: su-press .5s ease 2.5s both; }
+  .motion .su.at-3:not(.at-4) .su-cursor { animation: su-cursor 1.4s cubic-bezier(.5, 0, .25, 1) 1.7s both; }
+  @keyframes su-press { 50% { transform: scale(.9); } }
+  @keyframes su-cursor { 0% { left: 52%; top: 50%; opacity: 0; transform: none; } 15% { opacity: 1; } 60% { left: var(--cx, 72%); top: var(--cy, 80%); transform: none; } 70% { transform: scale(.78); } 80% { transform: none; } 90% { opacity: 1; } 100% { left: calc(var(--cx, 72%) + 2%); top: calc(var(--cy, 80%) + 4%); opacity: 0; } }
+
+  /* Etapa 5: o botão novo aparece no site e o mês fica resumido. */
+  .motion .su.at-4 .su-order { animation: su-new 1s ease .5s both; }
+  .motion .su.at-4 .su-sum .su-check { animation: su-pop .35s ease both; animation-delay: calc(1s + var(--i) * .45s); }
+  .motion .su.at-4 .su-seal { animation: su-pop .45s cubic-bezier(.2, .9, .3, 1.5) 3s both; }
+  @keyframes su-new { 0% { opacity: 0; transform: scale(.8); box-shadow: 0 0 0 0 rgb(245 158 11 / 0); } 40% { opacity: 1; transform: none; box-shadow: 0 0 0 .4em rgb(245 158 11 / .45); } 100% { box-shadow: 0 0 0 .8em rgb(245 158 11 / 0); } }
+
+  @keyframes su-pop { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+  @keyframes su-out { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes su-fade { from { opacity: 0; } }
+  @keyframes su-slide { from { opacity: 0; transform: translateY(.8em); } }
+}
