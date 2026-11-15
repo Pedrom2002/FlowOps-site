@@ -50,9 +50,6 @@
      (o painel abre, a secção entra no ecrã, ou recebe o rato ou um toque; ver initServices em scripts/motion.ts). --- */
   .motion .sv-card.is-playing .mk-status div .mk-ok { animation: sv-pop .3s cubic-bezier(.2, .9, .3, 1.4) both; animation-delay: calc(.45s + var(--i, 0) * .35s); }
   @keyframes sv-pop { from { transform: scale(0); } }
-  .motion .sv-card.is-playing .sv-dot { animation: sv-travel 1.3s ease-in-out .2s both; }
-  .motion .sv-card.is-playing .mk-cal .gr i.n { animation: sv-pop .35s cubic-bezier(.2, .9, .3, 1.4) 1.45s both; }
-  @keyframes sv-travel { 0% { left: 6%; opacity: 0; } 10%, 85% { opacity: 1; } 100% { left: 94%; opacity: 0; } }
   .motion .sv-card.is-playing .mk-online::before { animation: sv-ping 1s ease .2s 2; }
   @keyframes sv-ping { 50% { box-shadow: 0 0 0 6px #cfe6e0; } }
 

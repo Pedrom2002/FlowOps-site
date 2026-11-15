@@ -1,0 +1,126 @@
+---
+import FilmControls from './FilmControls.astro';
+// "Vídeo" do painel Integrações: as marcações do site da Clínica Vértice (fictícia) deixam de ser copiadas à mão
+// do email para a agenda e passam a entrar sozinhas, em 5 etapas. Estado: data-step e classes cumulativas
+// at-1..at-4 no .ig (como nos outros vídeos); avanço e controlos em initFilms (scripts/motion.ts).
+// Estilos: integration-film.css. O estado base é o da etapa final; sem movimento, as etapas mudam sem animação.
+// A cena do telemóvel e da agenda aparece nas etapas 1 (antes) e 4 (em direto); o seu estado base é o da etapa 4.
+const chapters = [
+  { label: 'Antes', caption: 'Hoje: as marcações chegam por email e alguém as copia à mão para a agenda.' },
+  { label: 'O que passa', caption: 'Vemos que ferramentas já usa e que informação passa de umas para as outras.' },
+  { label: 'Ligadas', caption: 'Ligamo-las pelas vias oficiais de cada serviço.' },
+  { label: 'Em direto', caption: 'Cada marcação feita no site entra logo na agenda.' },
+  { label: 'Semanas', caption: 'Acompanhamos as primeiras semanas para garantir que nada se perde.' },
+];
+const last = chapters.length - 1;
+// Horários do site: [hora, ocupado na agenda]. Antes da ligação, o site mostra todos como livres.
+const slots: [string, boolean][] = [['9:00', true], ['10:00', true], ['11:30', false], ['14:00', true], ['15:30', false], ['17:00', true]];
+// Agenda da receção: [hora, nome, origem, classe].
+const agenda: [string, string, string, string][] = [
+  ['9:00', 'Carla Nunes', '', ''],
+  ['10:00', 'Marta Reis', 'por telefone', 'clash'],
+  ['11:30', 'Rui Costa', 'pelo site', 'new'],
+  ['14:00', 'Pedro Lopes', '', ''],
+  ['15:30', '', '', ''],
+  ['17:00', 'Sofia Prates', '', ''],
+];
+const tools: [string, string][] = [
+  ['Site', '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/>'],
+  ['Agenda', '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 14h3"/>'],
+  ['Faturação', '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'],
+];
+const links = ['nome, contacto, hora', 'consulta feita'];
+const lock = '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>';
+const checks: [string, string][] = [['Rui Costa', 'ter 11:30'], ['Inês Faria', 'ter 15:30'], ['Ana Silva', 'qua 10:00'], ['Hugo Matos', 'qui 9:00'], ['Luís Mota', 'qui 14:00'], ['Rita Sousa', 'sex 11:30']];
+const cursor = '<path d="M5 3l14 8-6 2-2 6z" />';
+---
+<div class="film ig at-1 at-2 at-3 at-4" data-film data-step={last} data-durations="4000,3200,3400,4000,4300">
+  <div class="ig-stage" aria-hidden="true">
+    <!-- 1 e 4. O site da clínica no telemóvel e a agenda da receção. -->
+    <div class="ig-scene">
+      <div class="ig-phone">
+        <div class="ig-screen">
+          <span class="ig-site"><i></i>Clínica Vértice</span>
+          <span class="ig-photo"></span>
+          <b class="ig-h">Marcar consulta</b>
+          <span class="ig-field"><small>Nome</small><span class="ig-swap"><span class="a">Ana Silva</span><span class="b">Rui Costa</span></span></span>
+          <small class="ig-day">terça, 17 nov</small>
+          <span class="ig-slots">
+            {slots.map(([t, busy], i) => (
+              <span class:list={['ig-slot', busy && 'busy', t === '10:00' && 'pick-a', t === '11:30' && 'pick-b']} style={`--i:${i}`}>{t}</span>
+            ))}
+          </span>
+          <span class="ig-book">Marcar</span>
+          <span class="ig-sent"><span class="ig-swap"><span class="a">Pedido enviado por email</span><span class="b">Marcação confirmada ✓</span></span></span>
+        </div>
+      </div>
+
+      <svg class="ig-wire" viewBox="0 0 160 105" preserveAspectRatio="none"><path pathLength="1" d="M46.5 66 C53 66 56 57 63 57" /></svg>
+      <svg class="ig-lock" viewBox="0 0 24 24" set:html={lock} />
+
+      <div class="ig-win">
+        <div class="ig-titlebar"><span class="ig-dots"><i></i><i></i><i></i></span><span class="ig-wtitle">Agenda da receção</span></div>
+        <div class="ig-ag">
+          <b class="ig-ag-day">terça, 17 nov</b>
+          {agenda.map(([t, name, via, cls]) => (
+            <span class="ig-row">
+              <time>{t}</time>
+              {name && <span class:list={['ig-appt', cls]}><b>{name}</b>{via && <small>{via}</small>}</span>}
+              {cls === 'clash' && <span class="ig-dup"><b>Ana Silva</b><small>copiado do email</small></span>}
+            </span>
+          ))}
+          <div class="ig-mail"><small>Email: nova marcação do site</small><b>Ana Silva</b><span>terça, 17 nov, 10:00</span></div>
+          <div class="ig-warn"><i>!</i>Duas marcações às 10:00</div>
+          <div class="ig-toast"><i></i>Confirmação enviada ao paciente</div>
+        </div>
+      </div>
+
+      <span class="ig-chip">Rui Costa, 11:30</span>
+      <svg class="ig-cursor" viewBox="0 0 24 24" set:html={cursor} />
+    </div>
+
+    <!-- 2 e 3. O mapa das ferramentas e do que passa entre elas; depois, ligadas. -->
+    <div class="ig-map">
+      <p class="ig-map-title">O que passa entre as ferramentas</p>
+      <div class="ig-tools">
+        {tools.map(([name, icon], n) => (
+          <>
+            <span class="ig-tool" style={`--i:${n}`}><svg viewBox="0 0 24 24" set:html={icon} />{name}</span>
+            {n < links.length && (
+              <span class="ig-link" style={`--i:${n}`}>
+                <small class="ig-what">{links[n]}</small>
+                <span class="ig-line"><i></i></span>
+                <span class="ig-tag"><span class="ig-swap"><span class="a">Copiado à mão</span><span class="b"><svg viewBox="0 0 24 24" set:html={lock} />Ligação oficial</span></span></span>
+              </span>
+            )}
+          </>
+        ))}
+      </div>
+      <div class="ig-panel">
+        <small>Ligações</small>
+        {['Site → Agenda', 'Agenda → Faturação'].map((t, n) => (
+          <span class="ig-conn" style={`--i:${n}`}><span>{t}</span><i class="ig-switch"></i><span class="ig-state ig-swap"><span class="a">Desligado</span><span class="b">Ligado</span></span></span>
+        ))}
+      </div>
+    </div>
+
+    <!-- 5. Acompanhamento: cada marcação do site confere com a agenda, semana a semana. -->
+    <div class="ig-check">
+      <div class="ig-check-head">
+        <b>Acompanhamento</b>
+        <span class="ig-weeks">{[1, 2, 3].map((w) => <span style={`--i:${w - 1}`}>Semana {w}</span>)}</span>
+      </div>
+      <span class="ig-progress"><i></i></span>
+      <div class="ig-cols"><small>No site</small><span></span><small>Na agenda</small></div>
+      {checks.map(([name, when], i) => (
+        <div class="ig-pair" style={`--i:${i}`}>
+          <span class="ig-side l"><b>{name}</b>{when}</span>
+          <span class="ig-ok">✓</span>
+          <span class="ig-side r"><b>{name}</b>{when}</span>
+        </div>
+      ))}
+      <span class="ig-seal">Semana 3: tudo confere</span>
+    </div>
+  </div>
+  <FilmControls chapters={chapters} />
+</div>
