@@ -1,80 +1,153 @@
-/* Secção "O que costuma travar um negócio": lista de problemas + palco "antes → depois".
-   As peças de cada cena têm duas posições (custom properties no HTML): --bx/--by/--bw/--br no "antes",
-   --ax/--ay/--aw no "depois". O estado vem da classe .is-before no palco (scripts/motion.ts).
-   Sem JS ou com movimento reduzido, fica o "depois". */
+/* Secção "O que costuma travar um negócio": lista de problemas à esquerda e, à direita, um palco "antes → depois":
+   - antes: as peças estão espalhadas numa secretária;
+   - depois: aparece a janela de uma app e as peças arrumam-se lá dentro.
+   Cada peça tem duas posições (custom properties no HTML): --bx/--by/--bw/--br no "antes" (em %),
+   --ax/--ay/--aw no "depois" (números de 0 a 100 dentro da área útil da janela).
+   --p (0 = antes, 1 = depois) mistura as duas posições; --w (0 a 1) abre a janela.
+   O estado vem das classes .is-before (palco) e .is-b (peças), postas por scripts/motion.ts.
+   Com movimento, os problemas passam sozinhos (com pausa); sem JS ou com movimento reduzido, fica o "depois". */
+@property --p { syntax: '<number>'; inherits: false; initial-value: 1; }
+@property --w { syntax: '<number>'; inherits: true; initial-value: 1; }
+
 @layer components {
+  .pb-section { background: #fff; }
+
   /* --- Lista --- */
   .pb-list { display: grid; gap: 6px; }
   .pb-item {
+    position: relative;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    gap: 2px 14px;
+    gap: 0 14px;
     align-items: start;
-    padding: 14px 16px;
-    border: 1.5px solid transparent;
+    padding: 12px 14px;
+    border: 1px solid transparent;
     border-radius: 14px;
+    color: var(--color-muted);
     text-align: left;
     cursor: pointer;
-    transition: background-color .2s ease, border-color .2s ease;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease;
   }
-  .pb-item:hover { background: #f6fbf9; }
-  .pb-item.is-active { background: var(--color-soft); border-color: #cfe7e2; }
+  .pb-item:hover { background: #f6fbf9; color: var(--color-ink); }
+  .pb-item.is-active { border-color: #cfe7e2; background: var(--color-soft); color: var(--color-ink); }
   .pb-icon {
-    grid-row: span 3;
+    grid-row: span 2;
     display: grid;
     place-items: center;
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     border: 1px solid var(--color-line);
     border-radius: 11px;
     background: #fff;
-    color: var(--color-muted);
     transition: background-color .2s ease, color .2s ease, border-color .2s ease;
   }
-  .pb-item.is-active .pb-icon { background: var(--color-brand); border-color: var(--color-brand); color: #fff; }
-  .pb-short { font-family: var(--font-display); font-size: 1.08rem; font-weight: 700; letter-spacing: -.01em; line-height: 1.35; padding-top: 1px; }
+  .pb-item.is-active .pb-icon { border-color: var(--color-brand); background: var(--color-brand); color: #fff; }
+  .pb-short { font-family: var(--font-display); font-size: 1.12rem; font-weight: 700; letter-spacing: -.01em; line-height: 1.3; }
+  .pb-short { padding-top: 9px; } /* centra com o ícone de 40px */
+  /* O texto do problema aberto desdobra-se (0fr → 1fr) em vez de aparecer de repente. */
+  .pb-more {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows .45s cubic-bezier(.65, 0, .25, 1), opacity .3s ease;
+  }
+  .pb-more-in { display: grid; gap: 8px; min-height: 0; padding-top: 6px; overflow: hidden; }
+  .pb-item.is-active .pb-more { grid-template-rows: 1fr; opacity: 1; transition-delay: 0s, .12s; }
   .pb-problem { color: var(--color-muted); font-size: .97rem; line-height: 1.5; }
-  .pb-solution { display: none; gap: 8px; margin-top: 6px; color: var(--color-brand-strong); font-weight: 600; line-height: 1.45; }
-  .pb-item.is-active .pb-solution { display: flex; }
+  .pb-solution { display: flex; gap: 8px; color: var(--color-brand-strong); font-weight: 600; line-height: 1.45; }
 
-  /* --- Palco --- */
+  /* --- Palco: uma secretária clara; no "antes" acende-se uma luz quente e o tapete quadriculado --- */
   .pb-stage {
+    --sp: 18px;
+    position: relative;
+    isolation: isolate;
     container-type: inline-size;
-    padding: 14px;
+    padding: var(--sp) var(--sp) 14px;
     border: 1px solid var(--color-line);
-    border-radius: 22px;
-    background: #f6faf9 radial-gradient(circle, #dbe7e3 1px, transparent 1.2px) 0 0 / 18px 18px;
+    border-radius: 24px;
+    background: #eef6f3 radial-gradient(70% 55% at 50% 38%, rgb(94 234 212 / .22), transparent 70%);
+    overflow: hidden;
   }
-  .pb-modes {
-    display: flex;
-    width: fit-content;
-    margin: 0 0 12px auto;
-    padding: 4px;
-    border: 1px solid var(--color-line);
-    border-radius: 999px;
-    background: #fff;
+  .pb-stage::before,
+  .pb-stage::after { content: ''; position: absolute; inset: 0; z-index: -1; opacity: calc(1 - var(--w)); pointer-events: none; }
+  .pb-stage::before { background: radial-gradient(85% 70% at 22% -5%, rgb(245 158 11 / .16), transparent 62%), #f4f1ea; }
+  .pb-stage::after {
+    background:
+      linear-gradient(rgb(15 31 28 / .06) 1px, transparent 1px) 0 0 / 28px 28px,
+      linear-gradient(90deg, rgb(15 31 28 / .06) 1px, transparent 1px) 0 0 / 28px 28px;
   }
-  .pb-modes button {
-    min-height: 44px; /* área de toque mínima (WCAG 2.5.5) */
-    padding: 0 18px;
-    border-radius: 999px;
-    color: var(--color-muted);
-    font-size: .92rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color .2s ease, color .2s ease;
-  }
-  .pb-modes button[aria-pressed='true'] { background: var(--color-ink); color: #fff; }
+  .pb-stage.is-before { --w: 0; }
 
-  .pb-scene { position: relative; aspect-ratio: 16 / 11; font-size: clamp(10.5px, 2.45cqw, 14.5px); line-height: 1.3; }
+  .pb-scene {
+    --ch: 3em;   /* altura da barra de título da janela */
+    --px: 1.1em; /* margem interior da janela */
+    position: relative;
+    aspect-ratio: 16 / 11;
+    font-size: clamp(10.5px, 2.4cqw, 14px);
+    line-height: 1.3;
+  }
   .pb-scene[hidden] { display: none; }
 
-  /* Peça no "depois" (estado base): linha de lista limpa. */
-  .pb-piece {
+  /* Janela da app (só no "depois"). */
+  .pb-win {
     position: absolute;
-    left: var(--ax);
-    top: var(--ay);
-    width: var(--aw);
+    inset: 0;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 34px 60px -30px rgb(15 31 28 / .35);
+    opacity: var(--w);
+    scale: calc(.94 + .06 * var(--w));
+    translate: 0 calc((1 - var(--w)) * 12px);
+  }
+  .pb-chrome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    height: var(--ch);
+    padding: 0 var(--px);
+    border-bottom: 1px solid var(--color-line);
+    border-radius: 14px 14px 0 0;
+    background: #f3f8f6;
+    color: var(--color-ink);
+    font-size: .95em;
+  }
+  .pb-chrome b { font-family: var(--font-display); font-weight: 750; letter-spacing: -.01em; }
+  .pb-url { padding: .3em .9em; border: 1px solid var(--color-line); border-radius: 999px; background: #fff; color: var(--color-muted); }
+  .pb-live { display: inline-flex; align-items: center; gap: .5em; color: var(--color-brand-strong); font-size: .9em; font-weight: 650; white-space: nowrap; }
+  .pb-live::before { content: ''; width: .55em; height: .55em; border-radius: 50%; background: #14b8a6; box-shadow: 0 0 0 .22em rgb(20 184 166 / .2); }
+  /* Enquanto arruma: "A organizar…", ponto âmbar e uma barra de progresso por baixo da barra de título. */
+  .pb-chrome { position: relative; }
+  .pb-st-work { display: none; }
+  .pb-stage.is-working .pb-st-work { display: inline; }
+  .pb-stage.is-working .pb-st-done { display: none; }
+  .pb-stage.is-working .pb-live { color: #92400e; }
+  .pb-stage.is-working .pb-live::before { background: #f59e0b; box-shadow: 0 0 0 .22em rgb(245 158 11 / .22); }
+  .pb-chrome::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -1px;
+    height: 2px;
+    background: var(--color-brand);
+    transform-origin: left;
+    scale: 0 1;
+    opacity: 0;
+  }
+  .pb-stage.is-working .pb-chrome::after { opacity: 1; animation: pb-fill var(--work, 1.8s) linear forwards; }
+
+  .pb-pieces { position: absolute; inset: 0; }
+
+  /* Peça: posição = mistura do "antes" e do "depois" segundo --p. */
+  .pb-piece {
+    --al: calc(var(--px) + (100% - 2 * var(--px)) * var(--ax) / 100);
+    --at: calc(var(--ch) + var(--px) + (100% - var(--ch) - 2 * var(--px)) * var(--ay) / 100);
+    --aw2: calc((100% - 2 * var(--px)) * var(--aw) / 100);
+    position: absolute;
+    left: calc(var(--bx) * (1 - var(--p)) + var(--al) * var(--p));
+    top: calc(var(--by) * (1 - var(--p)) + var(--at) * var(--p));
+    width: calc(var(--bw) * (1 - var(--p)) + var(--aw2) * var(--p));
+    rotate: calc(var(--br) * (1 - var(--p)));
     display: grid;
     padding: .75em .95em;
     border: 1px solid var(--color-line);
@@ -83,14 +156,18 @@
     box-shadow: 0 1px 2px rgb(15 31 28 / .05);
     color: var(--color-ink);
   }
-  .pb-b { display: grid; gap: .5em; }
+  /* A posição segue o palco (.is-before); o aspeto e o texto seguem a peça (.is-b), que só deixa de estar
+     desarrumada quando chega ao lugar. Assim as peças viajam com o aspeto de papel e nunca ficam vazias. */
+  .pb-stage.is-before .pb-piece { --p: 0; }
+  .pb-piece.is-b { box-shadow: 0 14px 26px -12px rgb(15 31 28 / .35); }
+  .pb-b { display: grid; gap: .5em; overflow-wrap: anywhere; }
   .pb-a { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35em .7em; }
   .pb-a:has(> span + span) { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.1fr); }
   .pb-a > span:nth-child(2) { color: var(--color-muted); }
   .pb-piece b { font-weight: 650; }
   /* O texto do outro estado sai do fluxo (não mexe na altura) e fica invisível. */
-  .pb-stage:not(.is-before) .pb-b,
-  .pb-stage.is-before .pb-a { position: absolute; inset: .75em .95em; opacity: 0; overflow: hidden; }
+  .pb-piece:not(.is-b) .pb-b,
+  .pb-piece.is-b .pb-a { position: absolute; inset: .75em .95em; opacity: 0; overflow: hidden; }
 
   .pb-chip {
     justify-self: start;
@@ -106,43 +183,95 @@
   .pb-chip.warm { background: #fef3c7; color: #78350f; }
 
   /* Aspetos especiais no "depois". */
-  .pb-stage:not(.is-before) .a-head { padding-block: .3em; border-color: transparent; background: transparent; box-shadow: none; color: var(--color-muted); font-size: .86em; font-weight: 650; }
-  .pb-stage:not(.is-before) .a-head .pb-a > span:nth-child(2) { color: inherit; }
-  .pb-stage:not(.is-before) .a-h { padding-inline: .2em; border-color: transparent; background: transparent; box-shadow: none; font-family: var(--font-display); font-size: 1.3em; font-weight: 750; letter-spacing: -.015em; }
-  .a-h .pb-a { justify-content: flex-start; }
-  .a-h .pb-a em { margin-left: auto; font-family: var(--font-sans); font-size: .62em; }
-  .pb-stage:not(.is-before) .a-nav { border-color: var(--color-ink); border-radius: .75em .75em .3em .3em; background: var(--color-ink); color: #cfe7e2; font-size: .9em; }
+  .pb-piece.a-head:not(.is-b) { padding-block: .3em; border-color: transparent; background: transparent; box-shadow: none; color: var(--color-muted); font-size: .86em; font-weight: 650; }
+  .a-head .pb-a > span:nth-child(2) { color: inherit; }
+  .pb-piece.a-nav:not(.is-b) { border-color: var(--color-ink); border-radius: .6em; background: var(--color-ink); color: var(--color-on-deep); font-size: .9em; }
   .a-nav .pb-a { display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: .4em 1.4em; white-space: nowrap; }
   .a-nav .pb-a > span:nth-child(n) { color: inherit; }
   .a-nav .pb-a b { margin-right: auto; color: var(--color-aqua); }
-  .pb-stage:not(.is-before) .a-title { padding: 0; border-color: transparent; background: transparent; box-shadow: none; font-family: var(--font-display); font-size: 1.9em; font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
-  .pb-stage:not(.is-before) .a-btn { border-color: var(--color-brand); background: var(--color-brand); color: #fff; font-weight: 650; }
+  .pb-piece.a-title:not(.is-b) { padding: 0; border-color: transparent; background: transparent; box-shadow: none; font-family: var(--font-display); font-size: 1.85em; font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
+  .pb-piece.a-btn:not(.is-b) { border-color: var(--color-brand); background: var(--color-brand); color: #fff; font-weight: 650; }
   .a-btn .pb-a { justify-content: center; }
-  .pb-stage:not(.is-before) .a-img {
-    height: 27cqw;
+  .pb-piece.a-img:not(.is-b) {
+    height: 25cqw;
     border-color: transparent;
     background:
       radial-gradient(circle at 72% 28%, #fef3c7 0 9%, transparent 9.5%),
       linear-gradient(160deg, transparent 55%, #115e59 55.5%),
       linear-gradient(200deg, #99f6e4, #5eead4 60%, #0f766e);
   }
+  /* Peças que só existem na confusão: desaparecem onde estão. */
+  .pb-piece.a-gone { left: var(--bx); top: var(--by); width: var(--bw); rotate: var(--br); opacity: calc(1 - var(--p)); scale: calc(1 - .15 * var(--p)); }
+  .pb-piece.a-gone:not(.is-b) { pointer-events: none; }
 
-  /* --- "Antes": cada peça no seu canto, rodada, com o aspeto da origem --- */
-  .pb-stage.is-before .pb-piece { left: var(--bx); top: var(--by); width: var(--bw); rotate: var(--br); box-shadow: 0 12px 24px -10px rgb(15 31 28 / .3); }
+  /* --- Aspeto de origem no "antes" --- */
   .pb-lines { display: block; height: 3em; background: repeating-linear-gradient(#d6d3d1 0 1px, transparent 1px .75em); }
   .pb-grid { display: block; height: 3.3em; border: 1px solid #bbf7d0; background: linear-gradient(#bbf7d0 1px, transparent 1px) 0 0 / 100% 1.1em, linear-gradient(90deg, #bbf7d0 1px, transparent 1px) 0 0 / 2.4em 100%; }
-  .pb-stage.is-before .b-paper { border-color: #e7e5e4; border-radius: 3px; background: #fffefa; }
-  .pb-stage.is-before .b-note { border-color: #fcd34d; border-radius: 2px; background: #fde68a; color: #713f12; font-weight: 600; }
-  .pb-stage.is-before .b-sheet { border-color: #bbf7d0; border-top: .45em solid #16a34a; border-radius: 4px; }
-  .pb-stage.is-before .b-bubble { border-color: #bbf7d0; border-radius: 1.1em 1.1em 1.1em .25em; background: #dcfce7; }
-  .pb-stage.is-before .b-mail { border-left: .35em solid #94a3b8; border-radius: 4px; }
-  .pb-stage.is-before .b-alert { border-color: #fecaca; background: #fee2e2; color: #7f1d1d; }
-  .pb-stage.is-before .b-old { border: 1.5px dashed #a8a29e; border-radius: 0; background: #fffbeb; color: #44403c; font-family: 'Times New Roman', Times, serif; font-size: 1.05em; }
-  .pb-stage.is-before .b-ghost { opacity: 0; }
+  .pb-piece.is-b.b-paper { border-color: #e7e5e4; border-radius: 3px; background: #fffefa; }
+  .pb-piece.is-b.b-note { border-color: #fcd34d; border-radius: 2px; background: #fde68a; color: #713f12; font-weight: 600; }
+  .pb-piece.is-b.b-sheet { border-color: #bbf7d0; border-top: .45em solid #16a34a; border-radius: 4px; }
+  .pb-piece.is-b.b-bubble { border-color: #bbf7d0; border-radius: 1.1em 1.1em 1.1em .25em; background: #dcfce7; }
+  .pb-piece.is-b.b-mail { border-left: .35em solid #94a3b8; border-radius: 4px; }
+  .pb-piece.is-b.b-alert { border-color: #fecaca; background: #fee2e2; color: #7f1d1d; }
+  .pb-piece.is-b.b-old { border: 1.5px dashed #a8a29e; border-radius: 0; background: #fffbeb; color: #44403c; font-family: 'Times New Roman', Times, serif; font-size: 1.05em; }
+  .pb-piece.is-b.b-ghost { opacity: 0; }
+
+  /* --- Rodapé do palco: o número grande e os botões Antes/Depois --- */
+  .pb-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-top: 20px; padding: 0 4px; }
+  .pb-metric { display: grid; margin: 0; }
+  .pb-metric[hidden] { display: none; }
+  .pb-m { grid-area: 1 / 1; display: grid; gap: 6px; align-content: end; }
+  .pb-m strong {
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 10cqw, 4.6rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    letter-spacing: -.04em;
+    line-height: .95;
+  }
+  /* Sempre 2 linhas reservadas: o palco não muda de altura ao trocar de problema. */
+  .pb-m > span { max-width: 36ch; min-height: 2.8em; color: var(--color-muted); font-size: .95rem; line-height: 1.4; text-wrap: pretty; }
+  .pb-m-b strong { color: #b45309; } /* 5 : 1 sobre o fundo do palco */
+  .pb-m-a strong { color: var(--color-brand); }
+  /* No "depois", o valor de antes fica pequeno e riscado ao lado do novo. */
+  .pb-m-row { display: flex; align-items: baseline; gap: 14px; }
+  .pb-was { color: #b45309; font-family: var(--font-display); font-size: clamp(1.1rem, 3.4cqw, 1.5rem); font-weight: 700; text-decoration-thickness: 2px; }
+  /* O número só troca quando a arrumação acaba (.is-pending sai do palco). */
+  .pb-stage:not(.is-pending) .pb-m-b,
+  .pb-stage.is-pending .pb-m-a { visibility: hidden; opacity: 0; translate: 0 -10px; }
+
+  .pb-modes {
+    display: flex;
+    flex-shrink: 0;
+    padding: 4px;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: #fff;
+  }
+  .pb-modes button {
+    min-height: 44px; /* área de toque mínima (WCAG 2.5.5) */
+    padding: 0 18px;
+    border-radius: 999px;
+    color: var(--color-muted);
+    font-size: .92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .pb-modes button:hover { color: var(--color-ink); }
+  .pb-modes button[aria-pressed='true'] { background: var(--color-ink); color: #fff; }
+  .pb-note { margin: 10px 4px 0; color: var(--color-muted); font-size: .78rem; }
+
+  /* --- Chamada para o contacto --- */
+  .pb-cta { display: grid; gap: 4px; padding: 18px 16px 0; border-top: 1px solid var(--color-line); color: var(--color-muted); }
+  .pb-cta-link { gap: 8px; justify-self: start; color: var(--color-brand-strong); font-weight: 650; text-decoration: underline; text-decoration-color: rgb(15 118 110 / .35); text-underline-offset: 4px; }
+  .pb-cta-link:hover { text-decoration-color: currentColor; }
+  @media (min-width: 1024px) { .pb-cta { margin-top: 8px; } }
+  @media (max-width: 1023px) { .pb-cta { padding-inline: 4px; } }
 
   /* --- Legenda (só em ecrãs pequenos; no computador a lista já mostra a solução) --- */
-  .pb-caption { margin-top: 14px; padding: 0 4px; }
-  .pb-caption p { display: grid; gap: 6px; }
+  .pb-caption { margin-top: 14px; padding: 14px 4px 0; border-top: 1px solid var(--color-line); }
+  .pb-caption p { display: grid; align-content: start; gap: 6px; min-height: 6.4em; /* 3 linhas: o palco não salta */ }
   .pb-caption p[hidden] { display: none; }
   .pb-cap-problem { font-weight: 600; line-height: 1.45; }
   .pb-cap-solution { display: flex; gap: 8px; color: var(--color-brand-strong); font-weight: 600; line-height: 1.45; }
@@ -155,25 +284,96 @@
   /* Telemóvel e tablet: os 4 problemas viram botões compactos 2 × 2 por cima do palco. */
   @media (max-width: 1023px) {
     .pb-list { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .pb-item { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; min-height: 56px; padding: 8px 10px; border-color: var(--color-line); }
+    .pb-item,
+    .pb-item.is-active { align-items: center; gap: 10px; min-height: 56px; padding: 8px 10px; border-color: var(--color-line); }
+    .pb-item.is-active { border-color: #9fd6cb; }
     .pb-icon { grid-row: auto; width: 34px; height: 34px; border-radius: 9px; }
     .pb-short { font-size: .95rem; line-height: 1.25; }
-    .pb-problem, .pb-item .pb-solution, .pb-item.is-active .pb-solution { display: none; }
+    .pb-short { padding-top: 0; }
+    .pb-more { display: none; }
   }
   /* Telemóvel: cena mais alta para a letra poder crescer sem as peças se tocarem. */
   @media (max-width: 639px) {
-    .pb-stage { padding: 10px; }
-    .pb-scene { aspect-ratio: 1; font-size: clamp(12px, 3.9cqw, 14px); }
-    .pb-stage:not(.is-before) .a-title { font-size: 1.6em; }
-    .pb-stage:not(.is-before) .a-img { height: 34cqw; }
+    .pb-stage { --sp: 12px; padding-bottom: 10px; border-radius: 20px; }
+    .pb-scene { --ch: 2.8em; --px: .9em; aspect-ratio: 1 / 1.08; font-size: clamp(11.5px, 3.6cqw, 13.5px); }
+    .pb-piece.a-title:not(.is-b) { font-size: 1.55em; }
+    .pb-piece.a-img:not(.is-b) { height: 32cqw; }
+    .pb-foot { flex-direction: column; align-items: stretch; gap: 14px; }
+    .pb-controls { align-self: flex-start; }
   }
 
-  /* --- Movimento (só com .motion): as peças deslizam para o lugar, uma de cada vez --- */
+  /* --- Controlos: Antes/Depois e pausa --- */
+  .pb-controls { display: flex; flex-shrink: 0; align-items: center; gap: 8px; }
+  .pb-pause {
+    display: none;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border: 1px solid var(--color-line);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: border-color .2s ease;
+  }
+  .pb-pause:hover { border-color: var(--color-brand); }
+  .pb-pause svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2.2; }
+  .pb-pause .pb-play-i { display: none; fill: currentColor; stroke-linejoin: round; }
+  .pb-pause[aria-pressed='true'] .pb-pause-i { display: none; }
+  .pb-pause[aria-pressed='true'] .pb-play-i { display: block; }
+
+  /* --- Movimento (só com .motion): os problemas passam sozinhos --- */
+  .motion .pb-pause { display: grid; }
+  /* Tempo até ao problema seguinte: uma linha que se enche no problema aberto. */
+  .motion .pb-item.is-active::after {
+    content: '';
+    position: absolute;
+    inset: auto 14px 0;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-brand);
+    transform-origin: left;
+    scale: 0 1;
+  }
+  .motion .pb-item.is-active.is-run::after { animation: pb-fill var(--step, 7s) linear forwards; }
+  .motion [data-pb].is-paused .pb-item::after { animation-play-state: paused; }
+  .motion [data-pb].is-stopped .pb-item::after { opacity: 0; }
+  @keyframes pb-fill { to { scale: 1 1; } }
+  /* Troca de cena: a anterior fica por cima, arrumada, e desvanece; a nova chega sem janela (--w: 0)
+     e as peças caem na secretária uma a uma. */
+  .motion .pb-scene.is-leaving {
+    position: absolute;
+    inset: var(--sp) var(--sp) auto;
+    z-index: 1;
+    --w: 1;
+    pointer-events: none;
+    animation: pb-out .38s ease forwards;
+  }
+  .motion .pb-stage .pb-scene.is-leaving .pb-piece { --p: 1; transition: none; animation: none; }
+  .motion .pb-scene.is-enter { --w: 0; }
+  .motion .pb-stage.is-wait .pb-piece { opacity: 0; }
+  @keyframes pb-out { to { opacity: 0; scale: .97; } }
+  .motion .pb-scene.is-drop .pb-piece { animation: pb-drop .5s cubic-bezier(.2, .8, .25, 1.1) calc(var(--d) * 45ms + 120ms) backwards; }
+  @keyframes pb-drop { from { opacity: 0; translate: 0 -1.4em; scale: 1.05; } }
+
+  .motion .pb-stage { transition: --w .55s ease; }
+  /* A viagem tem atraso escalonado (uma peça de cada vez); a troca de aspeto e de texto é marcada pelo JS
+     quando cada peça chega, por isso tem uma transição curta e sem atraso. */
   .motion .pb-piece {
     --e: cubic-bezier(.65, 0, .25, 1);
-    transition: left .75s var(--e), top .75s var(--e), width .75s var(--e), rotate .75s var(--e), height .4s ease,
-      background-color .4s ease, border-color .4s ease, border-radius .4s ease, box-shadow .4s ease, color .4s ease, opacity .4s ease;
-    transition-delay: calc(var(--d) * 70ms);
+    transition: --p .9s var(--e) calc(var(--d) * 110ms + 150ms), height .3s ease, background-color .3s ease,
+      border-color .3s ease, border-radius .3s ease, box-shadow .3s ease, color .3s ease, opacity .4s ease, scale .5s ease;
   }
-  .motion .pb-piece > span { transition: opacity .3s ease calc(var(--d) * 70ms + .3s); }
+  .motion .pb-stage.is-before .pb-piece { transition-delay: 0s; }
+  .motion .pb-piece > span { transition: opacity .25s ease; }
+  /* Ao aterrar, a altura passa da do papel à da linha com transição (o JS fixa as duas alturas). */
+  .motion .pb-piece.is-land { overflow: hidden; }
+  /* Mensagem nova a meio da confusão. */
+  .motion .pb-stage.is-before:not(.is-wait) .pb-piece.b-pop { animation: pb-pop .5s cubic-bezier(.3, 1.6, .5, 1) .85s both; }
+  @keyframes pb-pop { from { opacity: 0; scale: .5; } }
+  .motion .pb-m { transition: opacity .35s ease, translate .35s ease, visibility 0s linear .35s; }
+  .motion .pb-stage:not(.is-pending) .pb-m-a,
+  .motion .pb-stage.is-pending .pb-m-b { transition-delay: .15s, .15s, 0s; }
+  .motion .pb-live::before { animation: pb-pulse 2.4s ease-in-out infinite; }
+  @keyframes pb-pulse { 50% { box-shadow: 0 0 0 .45em rgb(20 184 166 / 0); } }
 }

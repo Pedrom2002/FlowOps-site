@@ -10,6 +10,8 @@
 @import './automation-film.css';
 @import './integration-film.css';
 @import './support-film.css';
+@import './method.css';
+@import './commitments.css';
 @import './motion.css';
 
 /* Tokens da marca (brand board aprovada). Contrastes WCAG em README.md. */

@@ -21,7 +21,8 @@
   },
   "commitments": {
     "label": "Os nossos compromissos",
-    "title": "O que pode esperar de nós"
+    "title": "O que pode esperar de nós",
+    "lead": "Quatro compromissos que ficam escritos em todas as propostas, antes de começarmos qualquer trabalho."
   },
   "cases": {
     "label": "Exemplos",

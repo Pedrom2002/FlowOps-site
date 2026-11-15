@@ -6,80 +6,143 @@ import { getSection, getOrdered } from '../../lib/site';
 const head = await getSection('problems');
 const items = await getOrdered('problems');
 
-/* "Antes → depois": em cada cena, as mesmas peças começam desarrumadas (b = antes) e arrumam-se (a = depois).
-   b: [x %, y %, largura %, rotação em graus] · a: [x %, y %, largura %] dentro da área da cena.
+/* "Antes → depois": em cada cena, as mesmas peças começam espalhadas na secretária (b = antes)
+   e arrumam-se dentro da janela da app (a = depois).
+   b: [x %, y %, largura %, rotação em graus] na área da cena.
+   a: [x, y, largura] de 0 a 100 dentro da área útil da janela (por baixo da barra de título).
    k: aspeto no "antes" (paper, note, sheet, bubble, mail, alert, old, ghost);
-   ak: aspeto no "depois" (row por omissão, head, nav, title, btn, img). */
-type Piece = { k: string; ak?: string; b: [number, number, number, number]; a: [number, number, number]; bt: string; at: string };
+   ak: aspeto no "depois" (row por omissão, head, nav, title, btn, img, gone = desaparece).
+   pop: chega a meio da confusão (uma mensagem nova), para o "antes" não estar parado. */
+type Piece = { k: string; ak?: string; pop?: boolean; b: [number, number, number, number]; a: [number, number, number]; bt: string; at: string };
+type Scene = { title: string; status: string; url?: boolean; pieces: Piece[] };
 const chip = (t: string, tone = '') => `<em class="pb-chip ${tone}">${t}</em>`;
 const lines = '<i class="pb-lines"></i>';
-const scenes: Record<string, Piece[]> = {
-  'tarefas-manuais': [
-    { k: 'paper', b: [4, 6, 38, -7], a: [5, 22, 90], bt: `<b>Fatura 214</b>${lines}`, at: `<b>Fatura 214</b>${chip('Enviada')}` },
-    { k: 'paper', b: [26, 26, 38, 4], a: [5, 38, 90], bt: `<b>Fatura 215</b>${lines}`, at: `<b>Fatura 215</b>${chip('Enviada')}` },
-    { k: 'paper', b: [8, 54, 40, -2], a: [5, 54, 90], bt: `<b>Guia de transporte</b>${lines}`, at: `<b>Guia de transporte</b>${chip('Gerada')}` },
-    { k: 'note', b: [58, 8, 36, 6], a: [5, 70, 90], bt: 'Passar tudo para o Excel!', at: `<b>Excel da semana</b>${chip('Atualizado')}` },
-    { k: 'alert', ak: 'h', b: [56, 58, 38, -4], a: [5, 4, 90], bt: '<b>18:47</b> e ainda a faturar', at: `Hoje, sem ninguém tocar${chip('Automático')}` },
-  ],
-  'informacao-espalhada': [
-    { k: 'ghost', ak: 'head', b: [5, 4, 90, 0], a: [5, 4, 90], bt: '', at: '<span>Pedido</span><span>Veio de</span><span>Estado</span>' },
-    { k: 'paper', b: [4, 10, 36, -6], a: [5, 18, 90], bt: `Portas, 3 unidades. Ligar amanhã${lines}`, at: `<span>Portas (3 un.)</span><span>Papel</span>${chip('Em produção')}` },
-    { k: 'sheet', b: [44, 4, 48, 3], a: [5, 34, 90], bt: '<b>encomendas_v3_FINAL.xlsx</b><i class="pb-grid"></i>', at: `<span>Encomenda 58</span><span>Excel</span>${chip('Pronta')}` },
-    { k: 'bubble', b: [52, 52, 42, -3], a: [5, 50, 90], bt: 'Já está pronto? Preciso para sexta', at: `<span>Mesa de jantar</span><span>WhatsApp</span>${chip('Sai sexta')}` },
-    { k: 'mail', b: [6, 60, 40, 5], a: [5, 66, 90], bt: '<b>Re: Re: Re:</b> orçamento', at: `<span>Orçamento cozinha</span><span>Email</span>${chip('Enviado')}` },
-  ],
-  'presenca-online': [
-    { k: 'old', ak: 'nav', b: [52, 6, 40, 5], a: [0, 0, 100], bt: 'Ligue-nos: 21 000 0000', at: '<b>Remodelações</b><span>Serviços</span><span>Obras</span><span>Contacto</span>' },
-    { k: 'old', ak: 'title', b: [6, 34, 54, -6], a: [5, 20, 54], bt: 'Bem-vindo ao nosso site!!!', at: 'Obras com prazo e preço por escrito' },
-    { k: 'old', ak: 'btn', b: [8, 6, 40, -3], a: [5, 47, 30], bt: 'Página em construção', at: 'Pedir orçamento' },
-    { k: 'old', ak: 'img', b: [60, 44, 30, 9], a: [64, 20, 31], bt: 'imagem1.jpg', at: '' },
-    { k: 'old', b: [32, 72, 34, 4], a: [5, 72, 43], bt: 'Visitas: 000127', at: `<b>Cozinhas</b>${chip('3 semanas')}` },
-    { k: 'old', b: [62, 74, 32, -5], a: [52, 72, 43], bt: 'Última atualização: 2014', at: `<b>Casas de banho</b>${chip('9 dias')}` },
-  ],
-  'pedidos-perdidos': [
-    { k: 'ghost', ak: 'head', b: [4, 4, 29, 0], a: [4, 4, 29], bt: '', at: 'Novo' },
-    { k: 'ghost', ak: 'head', b: [35.5, 4, 29, 0], a: [35.5, 4, 29], bt: '', at: 'Em curso' },
-    { k: 'ghost', ak: 'head', b: [67, 4, 29, 0], a: [67, 4, 29], bt: '', at: 'Concluído' },
-    { k: 'alert', b: [6, 12, 40, -5], a: [4, 16, 29], bt: '<b>Chamada perdida</b> (3)', at: `<b>Pedido por telefone</b>${chip('Ligar hoje', 'warm')}` },
-    { k: 'bubble', b: [50, 8, 44, 4], a: [4, 43, 29], bt: 'Ainda tem vaga para sábado?', at: `<b>Vaga para sábado</b>${chip('Responder', 'warm')}` },
-    { k: 'mail', b: [10, 50, 46, 3], a: [35.5, 16, 29], bt: '<b>Pedido de orçamento</b> há 6 dias', at: `<b>Orçamento casa de banho</b>${chip('Enviado')}` },
-    { k: 'alert', b: [54, 56, 40, -6], a: [67, 16, 29], bt: '3 mensagens por ler', at: `<b>Marcação sábado, 10h</b>${chip('Confirmada')}` },
-  ],
+const scenes: Record<string, Scene> = {
+  'tarefas-manuais': {
+    title: 'Faturação',
+    status: 'Automático',
+    pieces: [
+      { k: 'paper', b: [4, 6, 38, -7], a: [0, 4, 100], bt: `<b>Fatura 214</b>${lines}`, at: `<b>Fatura 214</b>${chip('Enviada')}` },
+      { k: 'paper', b: [24, 30, 38, 4], a: [0, 22, 100], bt: `<b>Fatura 215</b>${lines}`, at: `<b>Fatura 215</b>${chip('Enviada')}` },
+      { k: 'paper', b: [6, 62, 40, -2], a: [0, 40, 100], bt: `<b>Guia de transporte</b>${lines}`, at: `<b>Guia de transporte</b>${chip('Gerada')}` },
+      { k: 'note', b: [58, 8, 36, 6], a: [0, 58, 100], bt: 'Passar tudo para o Excel!', at: `<b>Excel da semana</b>${chip('Atualizado')}` },
+      { k: 'alert', b: [55, 70, 38, -4], a: [0, 76, 100], bt: '<b>18:47</b> e ainda a faturar', at: `<b>Lembrete de pagamento</b>${chip('Agendado')}` },
+      { k: 'bubble', ak: 'gone', pop: true, b: [62, 40, 34, 3], a: [0, 0, 0], bt: 'Mandas-me a fatura de março?', at: '' },
+    ],
+  },
+  'informacao-espalhada': {
+    title: 'Pedidos',
+    status: 'Atualizado agora',
+    pieces: [
+      { k: 'ghost', ak: 'head', b: [5, 4, 90, 0], a: [0, 3, 100], bt: '', at: '<span>Pedido</span><span>Veio de</span><span>Estado</span>' },
+      { k: 'paper', b: [4, 10, 36, -6], a: [0, 18, 100], bt: `Portas, 3 unidades. Ligar amanhã${lines}`, at: `<span>Portas (3 un.)</span><span>Papel</span>${chip('Em produção')}` },
+      { k: 'sheet', b: [44, 4, 48, 3], a: [0, 37, 100], bt: '<b>encomendas_v3_FINAL.xlsx</b><i class="pb-grid"></i>', at: `<span>Encomenda 58</span><span>Excel</span>${chip('Pronta')}` },
+      { k: 'bubble', pop: true, b: [52, 62, 42, -3], a: [0, 56, 100], bt: 'Já está pronto? Preciso para sexta', at: `<span>Mesa de jantar</span><span>WhatsApp</span>${chip('Sai sexta')}` },
+      { k: 'mail', b: [5, 72, 40, 5], a: [0, 75, 100], bt: '<b>Re: Re: Re:</b> orçamento', at: `<span>Orçamento cozinha</span><span>Email</span>${chip('Enviado')}` },
+      { k: 'note', ak: 'gone', b: [30, 40, 30, -8], a: [0, 0, 0], bt: 'Quem ficou com a encomenda 58?', at: '' },
+    ],
+  },
+  'presenca-online': {
+    title: 'o-seu-negocio.pt',
+    status: 'Pedidos abertos',
+    url: true,
+    pieces: [
+      { k: 'old', ak: 'nav', b: [52, 6, 40, 5], a: [0, 0, 100], bt: 'Ligue-nos: 21 000 0000', at: '<b>Remodelações</b><span>Serviços</span><span>Obras</span><span>Contacto</span>' },
+      { k: 'old', ak: 'title', b: [6, 34, 54, -6], a: [0, 22, 56], bt: 'Bem-vindo ao nosso site!!!', at: 'Obras com prazo e preço por escrito' },
+      { k: 'old', ak: 'btn', b: [8, 6, 40, -3], a: [0, 55, 34], bt: 'Página em construção', at: 'Pedir orçamento' },
+      { k: 'old', ak: 'img', b: [60, 44, 30, 9], a: [61, 22, 39], bt: 'imagem1.jpg', at: '' },
+      { k: 'old', pop: true, b: [32, 72, 34, 4], a: [0, 80, 48], bt: 'Visitas: 000127', at: `<b>Cozinhas</b>${chip('3 semanas')}` },
+      { k: 'old', b: [62, 74, 32, -5], a: [52, 80, 48], bt: 'Última atualização: 2014', at: `<b>Casas de banho</b>${chip('9 dias')}` },
+    ],
+  },
+  'pedidos-perdidos': {
+    title: 'Pedidos da semana',
+    status: '2 por responder',
+    pieces: [
+      { k: 'ghost', ak: 'head', b: [4, 4, 29, 0], a: [0, 3, 32], bt: '', at: 'Novo' },
+      { k: 'ghost', ak: 'head', b: [35.5, 4, 29, 0], a: [34, 3, 32], bt: '', at: 'Em curso' },
+      { k: 'ghost', ak: 'head', b: [67, 4, 29, 0], a: [68, 3, 32], bt: '', at: 'Concluído' },
+      { k: 'alert', b: [6, 12, 40, -5], a: [0, 18, 32], bt: '<b>Chamada perdida</b> (3)', at: `<b>Pedido por telefone</b>${chip('Ligar hoje', 'warm')}` },
+      { k: 'bubble', pop: true, b: [50, 8, 44, 4], a: [0, 50, 32], bt: 'Ainda tem vaga para sábado?', at: `<b>Vaga para sábado</b>${chip('Responder', 'warm')}` },
+      { k: 'mail', b: [8, 46, 46, 3], a: [34, 18, 32], bt: '<b>Pedido de orçamento</b> há 6 dias', at: `<b>Orçamento casa de banho</b>${chip('Enviado')}` },
+      { k: 'alert', b: [56, 60, 40, -6], a: [68, 18, 32], bt: '3 mensagens por ler', at: `<b>Marcação sábado, 10h</b>${chip('Confirmada')}` },
+      { k: 'paper', b: [58, 30, 36, 5], a: [34, 50, 32], bt: 'Visita técnica, quinta?', at: `<b>Visita técnica</b>${chip('Quinta')}` },
+      { k: 'mail', b: [4, 74, 42, -3], a: [68, 50, 32], bt: '<b>Re:</b> orçamento cozinha', at: `<b>Orçamento cozinha</b>${chip('Aceite')}` },
+      { k: 'note', ak: 'gone', b: [50, 82, 32, 5], a: [0, 0, 0], bt: 'Ligar de volta (a quem?)', at: '' },
+    ],
+  },
 };
 const pos = (p: Piece, i: number) =>
-  `--bx:${p.b[0]}%;--by:${p.b[1]}%;--bw:${p.b[2]}%;--br:${p.b[3]}deg;--ax:${p.a[0]}%;--ay:${p.a[1]}%;--aw:${p.a[2]}%;--d:${i}`;
+  `--bx:${p.b[0]}%;--by:${p.b[1]}%;--bw:${p.b[2]}%;--br:${p.b[3]}deg;--ax:${p.a[0]};--ay:${p.a[1]};--aw:${p.a[2]};--d:${i}`;
 ---
-<section class="section" aria-labelledby="problemas-title" data-pb>
+<section class="pb-section section" aria-labelledby="problemas-title" data-pb>
   <div class="container-site">
     <SectionHead id="problemas-title" label={head.label} title={head.title} lead={head.lead} />
-    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-12">
+    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:gap-14">
       <!-- Lista de problemas: escolher um mostra o respetivo "antes → depois". -->
       <div class="pb-list" role="group" aria-label="Escolha um problema">
         {items.map(({ data }, n) => (
           <button type="button" class:list={['pb-item', n === 0 && 'is-active']} data-pb-item aria-pressed={n === 0 ? 'true' : 'false'} aria-controls="pb-stage">
-            <span class="pb-icon" aria-hidden="true"><Icon name={data.icons[0]} class="size-[20px]" strokeWidth={1.8} /></span>
+            <span class="pb-icon" aria-hidden="true"><Icon name={data.icons[0]} class="size-[19px]" strokeWidth={1.8} /></span>
             <span class="pb-short">{data.short}</span>
-            <span class="pb-problem">{data.problem}</span>
-            <span class="pb-solution"><Icon name="arrow" class="mt-[3px] size-[17px] shrink-0" />{data.solution}</span>
+            <span class="pb-more">
+              <span class="pb-more-in">
+                <span class="pb-problem">{data.problem}</span>
+                <span class="pb-solution"><Icon name="ok" class="mt-[3px] size-[17px] shrink-0" strokeWidth={2.4} />{data.solution}</span>
+              </span>
+            </span>
           </button>
         ))}
       </div>
 
-      <div class="pb-stage" id="pb-stage" data-pb-stage>
-        <div class="pb-modes" role="group" aria-label="Comparar">
-          <button type="button" data-pb-mode="before" aria-pressed="false">Antes</button>
-          <button type="button" data-pb-mode="after" aria-pressed="true">Depois</button>
-        </div>
-        {items.map(({ id }, n) => (
-          <div class="pb-scene" data-pb-scene hidden={n !== 0} aria-hidden="true">
-            {(scenes[id] ?? []).map((p, i) => (
-              <div class:list={['pb-piece', `b-${p.k}`, `a-${p.ak ?? 'row'}`]} style={pos(p, i)}>
-                <span class="pb-b" set:html={p.bt} />
-                <span class="pb-a" set:html={p.at} />
+      <div class="pb-stage lg:row-span-2" id="pb-stage" data-pb-stage>
+        {items.map(({ id }, n) => {
+          const sc = scenes[id];
+          return (
+            <div class="pb-scene" data-pb-scene hidden={n !== 0} aria-hidden="true">
+              <div class="pb-win">
+                <div class="pb-chrome">
+                  {sc?.url ? <span class="pb-url">{sc.title}</span> : <b>{sc?.title}</b>}
+                  <span class="pb-live"><span class="pb-st-work">A organizar…</span><span class="pb-st-done">{sc?.status}</span></span>
+                </div>
               </div>
-            ))}
+              <div class="pb-pieces">
+                {(sc?.pieces ?? []).map((p, i) => (
+                  <div class:list={['pb-piece', `b-${p.k}`, `a-${p.ak ?? 'row'}`, p.pop && 'b-pop']} style={pos(p, i)}>
+                    <span class="pb-b" set:html={p.bt} />
+                    <span class="pb-a" set:html={p.at} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+
+        <div class="pb-foot">
+          {items.map(({ data }, n) => (
+            <p class="pb-metric" data-pb-metric hidden={n !== 0}>
+              <span class="pb-m pb-m-b"><strong>{data.metric.before.value}</strong><span>{data.metric.before.label}</span></span>
+              <span class="pb-m pb-m-a">
+                <span class="pb-m-row"><strong data-pb-count data-from={data.metric.before.value} data-to={data.metric.after.value}>{data.metric.after.value}</strong><s class="pb-was"><span class="sr-only">antes: </span>{data.metric.before.value}</s></span>
+                <span>{data.metric.after.label}</span>
+              </span>
+            </p>
+          ))}
+          <div class="pb-controls">
+            <div class="pb-modes" role="group" aria-label="Comparar">
+              <button type="button" data-pb-mode="before" aria-pressed="false">Antes</button>
+              <button type="button" data-pb-mode="after" aria-pressed="true">Depois</button>
+            </div>
+            <!-- Só aparece com movimento: os problemas passam sozinhos e isto pára-os (WCAG 2.2.2). -->
+            <button type="button" class="pb-pause" data-pb-pause aria-pressed="false">
+              <svg class="pb-pause-i" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9M11 3.5v9" /></svg>
+              <svg class="pb-play-i" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6L12.5 8z" /></svg>
+              <span class="sr-only" data-label>Pausar a passagem automática</span>
+            </button>
           </div>
-        ))}
+        </div>
+        <p class="pb-note">Exemplo ilustrativo</p>
+
         <div class="pb-caption" aria-live="polite">
           {items.map(({ data }, n) => (
             <p data-pb-cap hidden={n !== 0}>
@@ -88,6 +151,12 @@ const pos = (p: Piece, i: number) =>
             </p>
           ))}
         </div>
+      </div>
+
+      <!-- No computador fica por baixo da lista; no telemóvel, depois do palco. -->
+      <div class="pb-cta lg:col-start-1 lg:row-start-2">
+        <p>O seu caso não está aqui? Conte-nos o que lhe faz perder tempo.</p>
+        <a href="#contacto" class="tap pb-cta-link">Falar connosco<Icon name="arrow" class="size-[17px]" /></a>
       </div>
     </div>
   </div>
